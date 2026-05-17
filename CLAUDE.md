@@ -184,3 +184,17 @@ All phase reports and planning docs live in `docs/design/`:
 | `reports/phase7_analytics_report.md` | Analytics implementation + thesis sections |
 | `phase7_cleanup_prd.md` | Phase 7 cleanup checklist (Steps A–I, all complete) |
 | `phase8_additional_datasets_prd.md` | Phase 8 plan: additional dataset evaluation |
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues at `SakifKhan98/cattle-vision-framework`. Use the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Canonical label strings: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context layout: `CONTEXT.md` at repo root, `docs/adr/` for ADRs. See `docs/agents/domain.md`.
