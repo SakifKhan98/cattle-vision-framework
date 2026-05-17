@@ -1,0 +1,22 @@
+{
+  "dataset": "cvb",
+  "model": "sam2.1/sam2.1_hiera_l",
+  "checkpoint": "models/sam2/sam2.1_hiera_large.pt",
+  "score_threshold": 0.3,
+  "reprompt_interval_k": 15,
+  "n_videos_processed": 95,
+  "n_videos_ok": 502,
+  "n_videos_failed": 0,
+  "n_videos_zero_detections": 3,
+  "n_videos_zero_masks": 3,
+  "total_masks_produced": 226789,
+  "total_detections_input": 226025,
+  "overall_coverage_rate": 1.0034,
+  "mean_mask_area_px": 7205.2,
+  "median_mask_area_px": 6379.2,
+  "std_mask_area_px": 4941.8,
+  "mean_coverage_per_video": 1.3684,
+  "total_runtime_min": 329.41,
+  "mean_time_per_video_s": 207.96,
+  "throughput_videos_per_min": 0.3
+}

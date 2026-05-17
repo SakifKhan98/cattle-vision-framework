@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# Large data (download separately — see docs/datasets.md)
+data/raw/
+data/processed/
+data/rfdetr_seg/
+data/rfdetr_seg_eval/
+
+# Model weights and checkpoints (download from HuggingFace — see docs/setup.md)
+weights/
+runs/
+models/
+*.pth
+*.pt
+*.tar.gz
+*.ckpt
+
+# Archive — safe to delete after verifying pipeline
+_archive/
+
+# Third-party source repos (populated by setup steps — see docs/setup.md)
+third_party/
+
+# Large result artifacts (keep summaries, not raw outputs)
+# NOTE: results/behavior/predictions/ is COMMITTED (17 MB, needed for analytics)
+results/analytics/timelines/
+results/tracking/videos/
+results/tracking/visualizations/
+results/segmentation/viz/
+
+# Video files (too large for git)
+*.mp4
+*.avi
+*.mov
+
+# Binary document originals (converted to .md in docs/design/reports/)
+*.docx
+docs/**/*.pdf
+
+# Notebook outputs
+notebooks/.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

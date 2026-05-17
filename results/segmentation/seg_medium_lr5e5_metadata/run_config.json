@@ -1,0 +1,12 @@
+{
+  "run_name": "seg_medium_lr5e5",
+  "model": "RFDETRSegMedium",
+  "lr": 5e-05,
+  "batch_size": 4,
+  "grad_accum": 1,
+  "epochs": 100,
+  "n_gpus": 1,
+  "started": "2026-03-09T07:58:11.345295",
+  "completed": "2026-03-20T08:49:00.845340",
+  "runtime_hours": 264.84
+}

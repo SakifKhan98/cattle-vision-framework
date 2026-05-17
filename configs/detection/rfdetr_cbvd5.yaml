@@ -1,0 +1,33 @@
+experiment_name: rfdetr_cbvd5_v1
+
+model:
+  type: RFDETRMedium
+  pretrained: true
+
+dataset:
+  name: cbvd5
+  dataset_dir: data/processed/detection/cbvd5
+  num_classes: 1
+
+training:
+  epochs: 100
+  batch_size: 4
+  grad_accum_steps: 4
+  resolution: 560
+  lr: 1.0e-4
+  lr_encoder: 1.5e-4
+  weight_decay: 1.0e-4
+  gradient_checkpointing: false
+  early_stopping: true
+  early_stopping_patience: 15
+  early_stopping_min_delta: 0.005
+  early_stopping_use_ema: true
+  use_ema: true
+
+output:
+  output_dir: runs/detection/rfdetr_cbvd5_v1
+  tensorboard: true
+  checkpoint_interval: 10
+
+augmentation:
+  preset: AUG_CONSERVATIVE

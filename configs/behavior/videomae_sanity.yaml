@@ -1,0 +1,26 @@
+experiment_name: videomae_sanity
+model_name: MCG-NJU/videomae-base-finetuned-kinetics
+num_classes: 7
+labels_csv: data/processed/tubelets/labels.csv
+
+train:
+  dataset_filter: null
+  split_filter: train
+  label_subset: null
+
+val:
+  dataset_filter: null
+  split_filter: val
+  label_subset: null
+
+batch_size: 4
+grad_accum_steps: 8
+num_epochs: 2
+lr: 5.0e-5
+lr_head: 1.0e-3
+weight_decay: 0.05
+warmup_epochs: 0
+early_stopping_patience: 999
+use_class_weights: true
+
+output_dir: runs/behavior/videomae_sanity
