@@ -1,6 +1,6 @@
 #!/bin/bash
 # 12_generate_analytics.sh
-# Generate activity timelines, budget, transition matrix, and welfare flags from predictions.
+# Generate activity timelines, budget, transition matrix, and behavioral deviation from predictions.
 # Run from project root: bash scripts/12_generate_analytics.sh
 #
 # Prerequisites:
@@ -11,7 +11,7 @@
 #   results/analytics/timelines/          (gitignored — large per-video CSVs)
 #   results/analytics/activity_budget.csv
 #   results/analytics/transition_matrix.csv
-#   results/analytics/welfare_flags.csv
+#   results/analytics/behavior_deviation.csv
 
 set -e
 
@@ -42,7 +42,7 @@ python -m src.analytics.timeline \
     --out_dir "$ANALYTICS_DIR/timelines"
 
 echo ""
-echo "  Computing activity budget, transitions, and welfare flags ..."
+echo "  Computing activity budget, transitions, and behavioral deviation ..."
 python -m src.analytics.budget \
     --timelines_dir "$ANALYTICS_DIR/timelines" \
     --out_dir "$ANALYTICS_DIR"
@@ -53,5 +53,5 @@ echo "Step 12 complete."
 echo "  Committed outputs:"
 echo "    $ANALYTICS_DIR/activity_budget.csv"
 echo "    $ANALYTICS_DIR/transition_matrix.csv"
-echo "    $ANALYTICS_DIR/welfare_flags.csv"
+echo "    $ANALYTICS_DIR/behavior_deviation.csv"
 echo "========================================"

@@ -580,22 +580,24 @@ Output per video per track: `results/analytics/timelines/{video_id}_{track_id}.c
 track_id,label_id,label_name,start_frame,end_frame,start_sec,end_sec,duration_sec
 ```
 
-### 7.2 Activity Budget (`src/analytics/budget.py`)
+### 7.2 Activity Budget and Behavioral Deviation (`src/analytics/budget.py`)
 
 Input: timeline CSVs.
 
 Outputs:
 1. `results/analytics/activity_budget.csv` — per track per video: `% time in each behavior`
 2. `results/analytics/transition_matrix.csv` — behavior-to-behavior transition probabilities
-3. `results/analytics/welfare_flags.csv`:
+3. `results/analytics/behavior_deviation.csv` — per track: deviation from dataset-specific baseline
 
-| Flag                | Threshold           | Column              |
-| ------------------- | ------------------- | ------------------- |
-| Low lying time      | < 8 hrs/day         | `flag_low_lying`    |
-| Low foraging time   | < 4 hrs/day         | `flag_low_foraging` |
-| Low drinking events | < 2 events detected | `flag_low_drinking` |
+Per the approved thesis proposal (§4.6.3), the third output is **behavioral deviation analysis**,
+not clinical welfare flags. Implementation:
+- Compute dataset-level median % for each behavior (e.g., median % lying across all CVB val tracks)
+- Per track: report the absolute deviation from that median for each behavior
+- Flag tracks whose deviation exceeds 1.5× the interquartile range as notable outliers
+- No hard clinical thresholds (< 8 hrs/day etc.) — those are veterinary standards not supported by
+  short-clip video datasets
 
-Note: "per day" thresholds apply only for full-session videos. For short clips, report raw % and flag if < expected ratio.
+Schema: `dataset, video_id, track_id, behavior, pct_time, baseline_median, deviation, is_outlier`
 
 ---
 
@@ -617,8 +619,8 @@ Note: "per day" thresholds apply only for full-session videos. For short clips, 
 | 6.9 | Configs 1–4 | Not started — queued after Config 5 finishes |
 | 6.10 | Evaluate all 5 | Not started |
 | 7.1 | Timeline builder | Not started |
-| 7.2 | Activity budget | Not started |
-| 7.3 | Welfare flags | Not started |
+| 7.2 | Activity budget + behavioral deviation | Not started |
+| 7.3 | ~~Welfare flags~~ → behavioral deviation | Renamed — see §7.2 |
 
 ---
 

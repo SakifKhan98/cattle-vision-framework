@@ -272,7 +272,7 @@ cattle-vision-framework/              ← GitHub repo root (= promoted one_day/)
 │       ├── timelines/                ← gitignored (many large CSVs)
 │       ├── activity_budget.csv       ← committed
 │       ├── transition_matrix.csv     ← committed
-│       └── welfare_flags.csv         ← committed
+│       └── behavior_deviation.csv    ← committed (deviations from dataset baseline; per proposal §4.6.3)
 │
 ├── paper/                            ← Renamed from aiIoT_paper/
 │   ├── fig2_training_curves.py
@@ -440,7 +440,7 @@ scripts/11_evaluate.sh → src/behavior/evaluate.py
 scripts/12_generate_analytics.sh → src/analytics/timeline.py + budget.py
   reads:   results/behavior/predictions/, data/processed/tracking_v2/
   writes:  results/analytics/timelines/, results/analytics/activity_budget.csv,
-            results/analytics/transition_matrix.csv, results/analytics/welfare_flags.csv
+            results/analytics/transition_matrix.csv, results/analytics/behavior_deviation.csv
   runs on: CPU (fast)
 ```
 
@@ -672,7 +672,7 @@ All final numbers in one place:
 - Segmentation + RF-DETR-Seg: coverage stats, AP metrics
 - Tracking: IDF1, MOTA, MOTP per dataset
 - Behavior: full 5-config comparison matrix
-- Analytics: welfare flag summary (Phase 7, added when done)
+- Analytics: behavioral deviation summary (Phase 7, added when done)
 
 ### 7.7 docs/docker.md (new — Docker usage guide)
 
@@ -903,11 +903,12 @@ For each `.docx` listed in §7.9:
 ### Step I — Phase 7 analytics implementation
 After repo is clean and pushed:
 1. Implement `src/analytics/timeline.py` per `docs/design/phase5_7_plan.md` §7.1
-2. Implement `src/analytics/budget.py` per §7.2
+2. Implement `src/analytics/budget.py` per thesis proposal §4.6 (behavioral deviation, NOT welfare flags —
+   see §14 Closed Questions for rationale)
 3. Update `scripts/12_generate_analytics.sh` to call both modules
 4. Run analytics: `bash scripts/12_generate_analytics.sh`
-5. Add additional datasets to `data/raw/` (when identified)
-6. Commit `results/analytics/{activity_budget.csv, transition_matrix.csv, welfare_flags.csv}`
+5. Add additional datasets to `data/raw/` (when identified — see §13 Open Questions)
+6. Commit `results/analytics/{activity_budget.csv, transition_matrix.csv, behavior_deviation.csv}`
 
 ---
 
@@ -956,6 +957,13 @@ Check off each step as it is completed. If a session ends mid-step, note the las
 ## 14. Closed Questions (Resolved)
 
 **OC-SORT import in `src/tracking/track.py`** — RESOLVED. File uses `sys.path.insert` with `parents[2] / "OC_SORT"` and `from trackers.ocsort_tracker.ocsort import OCSort`. Cannot use pip package (different import path). Solution: clone official repo to `third_party/OC_SORT/` (gitignored); update path in track.py line 24. See §9 and Step A.
+
+**"Welfare flags" → "behavioral deviation analysis"** — RESOLVED. The earlier phase5_7_plan.md §7.2
+used clinical welfare thresholds (< 8 hrs/day lying, < 4 hrs foraging, < 2 drinking events) and called
+the output `welfare_flags.csv`. The approved thesis proposal (§4.6.3) uses the softer framing
+"behavioral deviation analysis" — deviations from dataset-specific baselines, without hard clinical
+thresholds. This is the correct framing for the committee. Output renamed to `behavior_deviation.csv`.
+`budget.py` should compute deviation from per-dataset median baselines, not apply fixed clinical rules.
 
 **`results/behavior/predictions/` format** — RESOLVED. Schema: `dataset, video_id, tubelet_dir, start_frame, end_frame, label_id, pred_label_id, logit_0..6`. Note: `track_id` is NOT an explicit column — it is the last component of `tubelet_dir` (e.g., `data/processed/tubelets/cbvd5/341/kf6_instc85ac7`). `timeline.py` must parse `track_id` from this path. `video_id` is a numeric folder name (e.g., `341`).
 
