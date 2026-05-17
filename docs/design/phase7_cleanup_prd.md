@@ -944,7 +944,7 @@ Check off each step as it is completed. If a session ends mid-step, note the las
 - [x] Step F — New documentation (setup.md, pipeline.md, datasets.md, results.md, docker.md, hipe_ops.md)
 - [x] Step G — .docx → Markdown conversion
 - [x] Step H — Git init, initial commit, GitHub push (https://github.com/SakifKhan98/cattle-vision-framework)
-- [ ] Step I — Phase 7 analytics (timeline.py, budget.py, additional datasets, script 12)
+- [x] Step I — Phase 7 analytics (timeline.py, budget.py, script 12 — 2026-05-17; additional datasets deferred to next phase)
 
 ---
 

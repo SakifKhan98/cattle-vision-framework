@@ -46,23 +46,23 @@ This work was supported by the USDA NIFA under Grant 2023-77040-41262.
 
 # LIST OF ABBREVIATIONS
 
-| AI | Artificial Intelligence |
-| --- | --- |
-| AVA | Atomic Visual Actions |
-| CNN | Convolutional Neural Network |
-| CV | Computer Vision |
-| CVB | Cattle Visual Behavior Dataset |
-| DL | Deep Learning |
+| AI   | Artificial Intelligence        |
+| ---- | ------------------------------ |
+| AVA  | Atomic Visual Actions          |
+| CNN  | Convolutional Neural Network   |
+| CV   | Computer Vision                |
+| CVB  | Cattle Visual Behavior Dataset |
+| DL   | Deep Learning                  |
 | HOTA | Higher Order Tracking Accuracy |
-| ID | Identity |
-| IoU | Intersection over Union |
-| MOT | Multi-Object Tracking |
-| OOD | Out-of-Distribution |
-| ReID | Re-Identification |
-| SAM | Segment Anything Model |
-| SOTA | State of the Art |
-| ViT | Vision Transformer |
-|  |  |
+| ID   | Identity                       |
+| IoU  | Intersection over Union        |
+| MOT  | Multi-Object Tracking          |
+| OOD  | Out-of-Distribution            |
+| ReID | Re-Identification              |
+| SAM  | Segment Anything Model         |
+| SOTA | State of the Art               |
+| ViT  | Vision Transformer             |
+|      |                                |
 
 # ABSTRACT
 
@@ -154,7 +154,7 @@ However, transformer adoption remains fragmented. Most studies replace a single 
 
 Generalization is a major challenge in livestock vision systems. Many studies report strong performance on test sets drawn from the same dataset or environment used for training. Domain shift occurs due to changes in lighting, background, camera viewpoint, weather, and animal appearance. Outdoor ranch environments introduce stronger variation than indoor barns [4].
 
-Despite frequent claims of robustness, explicit evaluation under cross-dataset or out-of-distribution conditions is rare. When such evaluations are performed, significant performance drops are observed  [7]. Some studies apply data augmentation or synthetic perturbations to improve robustness. However, these methods are often used without controlled evaluation, making it difficult to interpret their effect [17]. Overall, generalization is commonly assumed rather than measured.
+Despite frequent claims of robustness, explicit evaluation under cross-dataset or out-of-distribution conditions is rare. When such evaluations are performed, significant performance drops are observed [7]. Some studies apply data augmentation or synthetic perturbations to improve robustness. However, these methods are often used without controlled evaluation, making it difficult to interpret their effect [17]. Overall, generalization is commonly assumed rather than measured.
 
 ## 3.6 Summary of Research Gaps
 
@@ -162,19 +162,19 @@ Table 1 provides a comparative summary of prior work in vision-based livestock m
 
 Table 1. Summary of Related Work in Vision-Based Livestock Monitoring and Transformer Models
 
-| Paper (Year) | Primary Focus | Model Type | Key Contribution | Limitations / Gaps | Relevance to This Thesis |
-| --- | --- | --- | --- | --- | --- |
-| Mu et al. (2024) [12] | Behavior recognition | CNN (CBR-YOLO) | Demonstrated behavior recognition using detection-based features | CNN-only; frame-based inference; no temporal modeling | Highlights need for temporal, identity-aware behavior modeling |
-| Li et al. (2024) [13] | Behavior recognition | CNN / 3D CNN | Modeled cattle behavior using video clips | No transformer usage; limited generalization analysis | Motivates transformer-based temporal modeling |
-| Zhang et al. (2023) [8] | Detection + tracking + behavior | CNN + tracking | Integrated detection and tracking for behavior recognition | Weak identity preservation; limited OOD evaluation | Supports pipeline-level analysis but exposes tracking gaps |
-| Ong et al. (2023) [5] | Detection, tracking, segmentation | CNN-based pipeline | Introduced top-down dataset with masks and keypoints | Limited dataset size; no cross-dataset evaluation | Provides segmentation and identity ground truth |
-| Li et al. (2024) [6] | Behavior recognition | CNN / Video models | Large-scale behavior dataset with AVA-style labels | Indoor-only; limited environment diversity | Primary source for temporal behavior modeling |
-| Zia et al. (2023) [18] | Behavior + tracking | CNN-based | Outdoor behavior dataset with tracking IDs | Single paddock; behavior imbalance | Supports outdoor generalization testing |
-| Tangirala et al. (2021) [3] | Multi-object tracking & segmentation | Transformer | Showed transformers improve global context modeling | Evaluated outside livestock domain | Motivates transformer use for identity preservation |
-| Ma et al. (2025) [11] | Multi-object tracking | Transformer-based | Reduced identity switches in livestock scenes | Focused on tracking only | Supports transformer-based tracking module |
-| Cao et al. (2025) [19] | Behavior recognition | Transformer | Demonstrated transformer advantage for video behavior | No system-level integration | Supports transformer temporal modeling |
-| Das et al. (2025) [7] | Generalization analysis | CNN / ViT | Explicitly evaluated OOD generalization | Not livestock-specific behavior | Motivates measured generalization framework |
-| Noe et al. (2025) [4] | Outdoor tracking | CNN-based | Highlighted failures in open ranch environments | Limited behavior analysis | Justifies real-ranch evaluation (Freeman Center) |
+| Paper (Year)                | Primary Focus                        | Model Type         | Key Contribution                                                 | Limitations / Gaps                                    | Relevance to This Thesis                                       |
+| --------------------------- | ------------------------------------ | ------------------ | ---------------------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------------------------- |
+| Mu et al. (2024) [12]       | Behavior recognition                 | CNN (CBR-YOLO)     | Demonstrated behavior recognition using detection-based features | CNN-only; frame-based inference; no temporal modeling | Highlights need for temporal, identity-aware behavior modeling |
+| Li et al. (2024) [13]       | Behavior recognition                 | CNN / 3D CNN       | Modeled cattle behavior using video clips                        | No transformer usage; limited generalization analysis | Motivates transformer-based temporal modeling                  |
+| Zhang et al. (2023) [8]     | Detection + tracking + behavior      | CNN + tracking     | Integrated detection and tracking for behavior recognition       | Weak identity preservation; limited OOD evaluation    | Supports pipeline-level analysis but exposes tracking gaps     |
+| Ong et al. (2023) [5]       | Detection, tracking, segmentation    | CNN-based pipeline | Introduced top-down dataset with masks and keypoints             | Limited dataset size; no cross-dataset evaluation     | Provides segmentation and identity ground truth                |
+| Li et al. (2024) [6]        | Behavior recognition                 | CNN / Video models | Large-scale behavior dataset with AVA-style labels               | Indoor-only; limited environment diversity            | Primary source for temporal behavior modeling                  |
+| Zia et al. (2023) [18]      | Behavior + tracking                  | CNN-based          | Outdoor behavior dataset with tracking IDs                       | Single paddock; behavior imbalance                    | Supports outdoor generalization testing                        |
+| Tangirala et al. (2021) [3] | Multi-object tracking & segmentation | Transformer        | Showed transformers improve global context modeling              | Evaluated outside livestock domain                    | Motivates transformer use for identity preservation            |
+| Ma et al. (2025) [11]       | Multi-object tracking                | Transformer-based  | Reduced identity switches in livestock scenes                    | Focused on tracking only                              | Supports transformer-based tracking module                     |
+| Cao et al. (2025) [19]      | Behavior recognition                 | Transformer        | Demonstrated transformer advantage for video behavior            | No system-level integration                           | Supports transformer temporal modeling                         |
+| Das et al. (2025) [7]       | Generalization analysis              | CNN / ViT          | Explicitly evaluated OOD generalization                          | Not livestock-specific behavior                       | Motivates measured generalization framework                    |
+| Noe et al. (2025) [4]       | Outdoor tracking                     | CNN-based          | Highlighted failures in open ranch environments                  | Limited behavior analysis                             | Justifies real-ranch evaluation (Freeman Center)               |
 
 Based on the patterns observed in Table 1, the literature reveals several persistent gaps in vision-based analysis of cattle behavior. **Dataset gaps** remain prominent. Existing datasets are fragmented, environment-specific, and inconsistent in behavior definitions, limiting cross-dataset analysis [5], [6]. **Pipeline gaps** are evident. Detection, tracking, and behavior recognition are often developed and evaluated separately. Identity preservation remains weak, and system-level error propagation is rarely analyzed [8]. **Evaluation gaps** persist. Cross-environment and out-of-distribution evaluation is uncommon. Robustness is frequently claimed but rarely quantified [7].
 
@@ -190,13 +190,13 @@ The pipeline will follow four main stages: perception, behavior modeling, genera
 
 ![Figure](figures/thesis_proposal_fig02.png)
 
-**Figure ****2****.** End-to-end transformer-based framework for cattle behavior analysis.
+**Figure \*\***2\***\*.** End-to-end transformer-based framework for cattle behavior analysis.
 
 The behavior modeling stage will operate on track-based temporal segments rather than isolated frames. Transformer-based temporal models will be used to capture long-range dependencies in posture and motion. This approach will reduce frame-level noise and support the recognition of sustained behaviors [3], [13].
 
 The final stage will convert behavior predictions into analytics. The system will generate behavior timelines, activity summaries, and transition patterns for individual animals. These outputs will emphasize interpretability and long-term monitoring rather than isolated classification results [1]. This system overview defines the data flow and responsibilities of each module. The following sections will describe each component in detail, beginning with dataset design and preparation.
 
-**Figure ****2** summarizes the complete end-to-end methodology, illustrating the flow from raw video input through transformer-based perception, spatiotemporal behavior modeling, and behavior analytics. Raw video streams are processed through transformer-based detection and instance segmentation to localize and isolate individual cattle. Identity-preserved tracking produces spatiotemporal tubelets that are used to model temporal behavior. The resulting behavior predictions are aggregated into analytics and insights that can support long-term monitoring and evaluation across environments. Each numbered stage in the figure corresponds to a specific methodological component described in Section 4. The computational resources supporting these stages are summarized in **Table 4**, while the software libraries and tools used for implementation are listed in **Table 5**. The following subsections explicitly reference these stages to clarify how hardware and software components are used throughout the pipeline.
+**Figure \*\***2** summarizes the complete end-to-end methodology, illustrating the flow from raw video input through transformer-based perception, spatiotemporal behavior modeling, and behavior analytics. Raw video streams are processed through transformer-based detection and instance segmentation to localize and isolate individual cattle. Identity-preserved tracking produces spatiotemporal tubelets that are used to model temporal behavior. The resulting behavior predictions are aggregated into analytics and insights that can support long-term monitoring and evaluation across environments. Each numbered stage in the figure corresponds to a specific methodological component described in Section 4. The computational resources supporting these stages are summarized in **Table 4**, while the software libraries and tools used for implementation are listed in **Table 5\*\*. The following subsections explicitly reference these stages to clarify how hardware and software components are used throughout the pipeline.
 
 ## 4.2 Dataset Design and Preparation
 
@@ -206,16 +206,16 @@ Dataset design will be treated as a **central component** of the proposed method
 
 This study uses multiple cattle vision datasets to support cross-environment analysis. Each dataset contributes different viewpoints, environmental conditions, and annotation types. Rather than relying on a single source, the selected datasets are chosen to expose the perception and behavior models to diverse visual conditions and behavior patterns.
 
-Table 2.  Overview of Selected Datasets Used in This Study
+Table 2. Overview of Selected Datasets Used in This Study
 
-| Dataset | Data Type | Environment | Annotations | Role in This Work |
-| --- | --- | --- | --- | --- |
-| OpenCows2020 | Images | Indoor / outdoor UAV | Boxes, cow IDs | Detection pretraining; identity-aware representation learning; out-of-distribution generalization (no behavior supervision) |
-| CBVD-5 | Short videos (10s) | Indoor barn | Boxes; 5 core behaviors | Primary behavior supervision and temporal modeling for the defined core behavior set |
-| CVB | Videos (15s) | Outdoor pasture | Boxes, track IDs; multiple behaviors | Supporting behavior supervision for a subset of aligned behaviors; tracking evaluation; outdoor generalization |
-| Cows2021 | Images + short videos | Indoor, top-down | Oriented boxes, cow IDs | Detection and re-identification support; short-term tracking analysis (no behavior annotations) |
-| CattleEyeView | Continuous videos | Outdoor, top-down | Boxes, instance masks, track IDs | Segmentation and tracking evaluation; identity preservation under viewpoint change (no behavior supervision) |
-| Freeman Center | Raw ranch videos | Real outdoor ranch | Boxes; behavior; movement | Final descriptive behavior evaluation under real-world conditions (no diagnostic interpretation) |
+| Dataset        | Data Type             | Environment          | Annotations                          | Role in This Work                                                                                                           |
+| -------------- | --------------------- | -------------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| OpenCows2020   | Images                | Indoor / outdoor UAV | Boxes, cow IDs                       | Detection pretraining; identity-aware representation learning; out-of-distribution generalization (no behavior supervision) |
+| CBVD-5         | Short videos (10s)    | Indoor barn          | Boxes; 5 core behaviors              | Primary behavior supervision and temporal modeling for the defined core behavior set                                        |
+| CVB            | Videos (15s)          | Outdoor pasture      | Boxes, track IDs; multiple behaviors | Supporting behavior supervision for a subset of aligned behaviors; tracking evaluation; outdoor generalization              |
+| Cows2021       | Images + short videos | Indoor, top-down     | Oriented boxes, cow IDs              | Detection and re-identification support; short-term tracking analysis (no behavior annotations)                             |
+| CattleEyeView  | Continuous videos     | Outdoor, top-down    | Boxes, instance masks, track IDs     | Segmentation and tracking evaluation; identity preservation under viewpoint change (no behavior supervision)                |
+| Freeman Center | Raw ranch videos      | Real outdoor ranch   | Boxes; behavior; movement            | Final descriptive behavior evaluation under real-world conditions (no diagnostic interpretation)                            |
 
 As summarized in Table 2, each dataset serves a distinct and complementary role within the proposed framework. Image-based datasets are used to support detection pretraining, identity consistency analysis, and viewpoint generalization, while behavior-annotated video datasets enable temporal modeling of a fixed set of visually grounded behaviors. The Freeman Center dataset is reserved for descriptive evaluation under realistic, out-of-distribution ranch conditions. Together, these datasets support systematic analysis of behavior recognition, identity preservation, and model generalization across environments without assuming uniform annotation availability.
 
@@ -229,7 +229,7 @@ Together, this dataset composition will support evaluation across controlled, se
 
 ![Figure](figures/thesis_proposal_fig01.jpeg)
 
-**Figure ****1****.** Representative samples from selected cattle vision datasets.
+**Figure \*\***1\***\*.** Representative samples from selected cattle vision datasets.
 
 ### 4.2.2 Behavior Definition, Selection, and Harmonization Strategy
 
@@ -271,13 +271,13 @@ To incorporate interaction-related behaviors without expanding the scope excessi
 
 Behavior harmonization will follow explicit, dataset-aware rules:
 
-**Semantic merging****:** Labels that describe the same observable behavior will be merged into a single class (e.g., “foraging,” “grazing,” and “hay feeding” → **Foraging**).
+**Semantic merging\*\***:** Labels that describe the same observable behavior will be merged into a single class (e.g., “foraging,” “grazing,” and “hay feeding” → **Foraging\*\*).
 
-**Posture–activity disentanglement****:** When posture and activity are encoded jointly in a label (e.g., “ruminating-lying”), they will be separated into an activity class (**Ruminating**) and a posture class (**Lying**) to make sure consistent comparison with datasets that annotate these aspects independently.
+**Posture–activity disentanglement\*\***:** When posture and activity are encoded jointly in a label (e.g., “ruminating-lying”), they will be separated into an activity class (**Ruminating**) and a posture class (**Lying\*\*) to make sure consistent comparison with datasets that annotate these aspects independently.
 
-**No forced alignment****:** Behaviors not present or not clearly defined in a dataset will not be inferred or synthesized for that dataset.
+**No forced alignment\*\***:\*\* Behaviors not present or not clearly defined in a dataset will not be inferred or synthesized for that dataset.
 
-**Residual handling****:** A single **Other** category will be used to capture dataset-specific or unaligned annotations that do not fit any defined behavior class.
+**Residual handling\*\***:** A single **Other\*\* category will be used to capture dataset-specific or unaligned annotations that do not fit any defined behavior class.
 
 #### 4.2.2.5 Temporal Granularity Considerations
 
@@ -285,23 +285,23 @@ Because datasets differ in annotation granularity (frame-level, keyframe, or sho
 
 Table 3. Final Behavior Classes, Definitions, and Dataset Sources
 
-| Class | Category | Conservative operational definition | Dataset sources | Harmonization decision |
-| --- | --- | --- | --- | --- |
-| Standing | Core | Cow is upright with body weight supported by all four legs; posture only, independent of activity. | CBVD-5: standing; CVB: resting-standing, ruminating-standing; Freeman (movement): standing | Merged as posture state. CVB composite labels decomposed into posture + activity. |
-| Lying | Core | Cow’s body is resting on the ground (recumbent posture). | CBVD-5: lying down; CVB: resting-lying, ruminating-lying; Freeman (movement): lying | Merged as posture state. Composite labels decomposed where needed. |
-| Foraging | Core | Ingestive behavior involving active consumption of feed resources, including grazing on pasture and consumption of provided feed (e.g., hay), as explicitly annotated. | CBVD-5: foraging; CVB: grazing; Freeman (behavior): grazing, hay feeding | Merged into a single class to avoid over-fragmentation while preserving ingestive intent. |
-| Drinking | Core | Cow is actively consuming water from a water source, as defined by dataset annotation guidelines. | CBVD-5: drinking water; CVB: drinking | Merged only where explicitly annotated. Not inferred for datasets without this label. |
-| Ruminating | Core | Chewing cud (rumination) as visually annotated; may occur while standing or lying. | CBVD-5: rumination; CVB: ruminating-standing, ruminating-lying; Freeman (behavior): ruminating | Merged as activity state. Posture handled separately. |
-| Grooming | Auxiliary | Self-grooming or grooming of another animal, as explicitly annotated. | CVB: grooming; Freeman (behavior): grooming | Auxiliary shared behavior. Included only where supported; not required for all datasets. |
-| Other | Residual | Catch-all category for annotated behaviors or frames that do not correspond to any defined core or auxiliary behavior. | CVB: other; Freeman: normal; implicit residual in CBVD-5 | Residual only. Excluded from semantic interpretation. |
+| Class      | Category  | Conservative operational definition                                                                                                                                    | Dataset sources                                                                                | Harmonization decision                                                                    |
+| ---------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Standing   | Core      | Cow is upright with body weight supported by all four legs; posture only, independent of activity.                                                                     | CBVD-5: standing; CVB: resting-standing, ruminating-standing; Freeman (movement): standing     | Merged as posture state. CVB composite labels decomposed into posture + activity.         |
+| Lying      | Core      | Cow’s body is resting on the ground (recumbent posture).                                                                                                               | CBVD-5: lying down; CVB: resting-lying, ruminating-lying; Freeman (movement): lying            | Merged as posture state. Composite labels decomposed where needed.                        |
+| Foraging   | Core      | Ingestive behavior involving active consumption of feed resources, including grazing on pasture and consumption of provided feed (e.g., hay), as explicitly annotated. | CBVD-5: foraging; CVB: grazing; Freeman (behavior): grazing, hay feeding                       | Merged into a single class to avoid over-fragmentation while preserving ingestive intent. |
+| Drinking   | Core      | Cow is actively consuming water from a water source, as defined by dataset annotation guidelines.                                                                      | CBVD-5: drinking water; CVB: drinking                                                          | Merged only where explicitly annotated. Not inferred for datasets without this label.     |
+| Ruminating | Core      | Chewing cud (rumination) as visually annotated; may occur while standing or lying.                                                                                     | CBVD-5: rumination; CVB: ruminating-standing, ruminating-lying; Freeman (behavior): ruminating | Merged as activity state. Posture handled separately.                                     |
+| Grooming   | Auxiliary | Self-grooming or grooming of another animal, as explicitly annotated.                                                                                                  | CVB: grooming; Freeman (behavior): grooming                                                    | Auxiliary shared behavior. Included only where supported; not required for all datasets.  |
+| Other      | Residual  | Catch-all category for annotated behaviors or frames that do not correspond to any defined core or auxiliary behavior.                                                 | CVB: other; Freeman: normal; implicit residual in CBVD-5                                       | Residual only. Excluded from semantic interpretation.                                     |
 
 This behavior set will be appropriate for cross-dataset evaluation because it will be finite, annotation-grounded, visually interpretable, and conservative in scope. By limiting analysis to a small set of well-supported behaviors and treating all other observations as residual, the framework will make sure meaningful comparisons across datasets without over-promising interpretability or generality.
 
-**Table ****3** presents the final set of cattle behavior classes that will be used in this thesis, including their definitions, dataset sources, and harmonization decisions. Core behaviors, Standing, Lying, Foraging, Drinking, and Ruminating, are selected based on consistent, explicit annotation across datasets and are used for primary cross-dataset evaluation. Grooming is included as an auxiliary behavior when supported by annotations, while a residual **Other** category captures dataset-specific or unaligned labels to avoid forced alignment. For datasets that combine posture and activity, labels are decomposed during harmonization. Datasets without behavior annotations are excluded from the table and used only for representation and generalization analysis.
+**Table \*\***3** presents the final set of cattle behavior classes that will be used in this thesis, including their definitions, dataset sources, and harmonization decisions. Core behaviors, Standing, Lying, Foraging, Drinking, and Ruminating, are selected based on consistent, explicit annotation across datasets and are used for primary cross-dataset evaluation. Grooming is included as an auxiliary behavior when supported by annotations, while a residual **Other\*\* category captures dataset-specific or unaligned labels to avoid forced alignment. For datasets that combine posture and activity, labels are decomposed during harmonization. Datasets without behavior annotations are excluded from the table and used only for representation and generalization analysis.
 
 ### 4.2.3 Dataset Harmonization
 
-Dataset harmonization is required to support unified training and evaluation across datasets that differ in recording conditions, annotation structures, and data formats. Harmonization in this thesis will be performed at two levels: **technical harmonization**, which addresses data format and preprocessing differences, and **semantic harmonization**, which governs how behavior labels are aligned. Semantic harmonization decisions are defined separately in the *Behavior Definition**, Selection**,** and Harmonization Strategy* section and summarized in Table 3.
+Dataset harmonization is required to support unified training and evaluation across datasets that differ in recording conditions, annotation structures, and data formats. Harmonization in this thesis will be performed at two levels: **technical harmonization**, which addresses data format and preprocessing differences, and **semantic harmonization**, which governs how behavior labels are aligned. Semantic harmonization decisions are defined separately in the _Behavior Definition**, Selection**,\*\* and Harmonization Strategy_ section and summarized in Table 3.
 
 All videos will be converted to a common format prior to model development. Frame rates and image resolutions will be aligned where feasible to minimize variation attributable to preprocessing rather than model behavior [6]. Annotation files will be standardized into a shared structure, including bounding boxes, identity labels, and behavior labels when available. Datasets that do not contain explicit behavior annotations will be excluded from behavior supervision and will be used only for compatible tasks such as representation learning or generalization analysis.
 
@@ -337,7 +337,7 @@ Identity-preserving tracking corresponds to **Stage 3 (Tracking)** in **Figure 2
 
 Tracking will leverage both motion cues and visual embeddings derived from detection and segmentation outputs. Segmentation-aware association will reduce identity switches during occlusion and dense interactions [10]. Transformer-based tracking models will be considered to improve identity association. By jointly modeling detection and association, these models reduce identity switches in complex scenes [11].
 
-Tracking outputs will include time-ordered trajectories with identity labels, bounding boxes, masks, and confidence scores. Short gaps caused by missed detections will be handled through temporal smoothing rather than identity reassignment. Tracking performance will be evaluated using identity-focused metrics, including identity switches and identity-based accuracy measures. Evaluation will be performed across environments to expose failure cases  [23]. This perception pipeline will provide stable, identity-preserved tracks for temporal behavior modeling. The next section will describe how these tracks will be used for spatiotemporal behavior recognition.
+Tracking outputs will include time-ordered trajectories with identity labels, bounding boxes, masks, and confidence scores. Short gaps caused by missed detections will be handled through temporal smoothing rather than identity reassignment. Tracking performance will be evaluated using identity-focused metrics, including identity switches and identity-based accuracy measures. Evaluation will be performed across environments to expose failure cases [23]. This perception pipeline will provide stable, identity-preserved tracks for temporal behavior modeling. The next section will describe how these tracks will be used for spatiotemporal behavior recognition.
 
 ## 4.4 Spatiotemporal Behavior Recognition
 
@@ -387,7 +387,7 @@ Detection performance will be reported using precision and recall values compute
 
 #### 4.5.3.2 Instance Segmentation Metrics
 
-Instance segmentation performance will be evaluated based on the overlap between predicted and ground-truth masks. The metric used for Instance Segmentation performance evaluation is **Mask Intersection over Union (Mask IoU)****. **Mask overlap metrics are used in prior animal segmentation studies, such as Ong et al., 2023 (CattleEyeView), and Brünger et al., 2020 (Pig panoptic segmentation), where pixel-level delineation supports identity preservation and posture analysis [5], [10].
+Instance segmentation performance will be evaluated based on the overlap between predicted and ground-truth masks. The metric used for Instance Segmentation performance evaluation is **Mask Intersection over Union (Mask IoU)\*\***. \*\*Mask overlap metrics are used in prior animal segmentation studies, such as Ong et al., 2023 (CattleEyeView), and Brünger et al., 2020 (Pig panoptic segmentation), where pixel-level delineation supports identity preservation and posture analysis [5], [10].
 
 Let: = predicted segmentation mask, = ground truth segmentation mask
 
@@ -461,18 +461,18 @@ Model training, experimentation, and evaluation will be performed using the Lear
 
 Table 4. Hardware Configuration (LEAP2 HPC Cluster)
 
-| Component | Specification | Role in This Work |
-| --- | --- | --- |
-| HPC Platform | LEAP2 High-Performance Computing Cluster (Texas State University) | Centralized training and evaluation |
-| Compute Nodes | 108 × Dell PowerEdge C6520 | CPU-based preprocessing and evaluation |
-| CPU | Intel Xeon Gold 6336Y (Ice Lake), 48 cores/node (2 × 24-core, 2.4 GHz) | Dataset processing, data loading, evaluation |
-| Memory (Standard Nodes) | 256 GB RAM per node | Video decoding and annotation handling |
-| Local Scratch Storage | 400 GB SSD per node | Temporary data and intermediate outputs |
-| Large-Memory Nodes | 2 nodes with 1.5 TB RAM each | Large-scale dataset harmonization |
-| GPU Nodes | 8 nodes equipped with NVIDIA A100 GPUs | Model training and large-batch inference |
-| Interconnect | HDR InfiniBand (100 Gb/s) | High-throughput data access |
-| Shared Storage | IBM GPFS parallel filesystem (~1.5 PB total) | Dataset storage and experiment outputs |
-| Login Nodes | 3 dedicated nodes | Job submission and environment management |
+| Component               | Specification                                                          | Role in This Work                            |
+| ----------------------- | ---------------------------------------------------------------------- | -------------------------------------------- |
+| HPC Platform            | LEAP2 High-Performance Computing Cluster (Texas State University)      | Centralized training and evaluation          |
+| Compute Nodes           | 108 × Dell PowerEdge C6520                                             | CPU-based preprocessing and evaluation       |
+| CPU                     | Intel Xeon Gold 6336Y (Ice Lake), 48 cores/node (2 × 24-core, 2.4 GHz) | Dataset processing, data loading, evaluation |
+| Memory (Standard Nodes) | 256 GB RAM per node                                                    | Video decoding and annotation handling       |
+| Local Scratch Storage   | 400 GB SSD per node                                                    | Temporary data and intermediate outputs      |
+| Large-Memory Nodes      | 2 nodes with 1.5 TB RAM each                                           | Large-scale dataset harmonization            |
+| GPU Nodes               | 8 nodes equipped with NVIDIA A100 GPUs                                 | Model training and large-batch inference     |
+| Interconnect            | HDR InfiniBand (100 Gb/s)                                              | High-throughput data access                  |
+| Shared Storage          | IBM GPFS parallel filesystem (~1.5 PB total)                           | Dataset storage and experiment outputs       |
+| Login Nodes             | 3 dedicated nodes                                                      | Job submission and environment management    |
 
 Table 4 summarizes the hardware configuration of the LEAP2 High-Performance Computing (HPC) cluster at Texas State University used in this study. The cluster provides CPU and GPU resources required for large-scale video processing, model training, and evaluation. Standard compute nodes are used for data preprocessing and evaluation, while GPU nodes equipped with NVIDIA A100 GPUs support deep learning model training and inference. Large-memory nodes make sure efficient dataset harmonization, and the high-speed InfiniBand interconnect and shared GPFS storage support fast data access and scalability.
 
@@ -482,39 +482,39 @@ To support reproducibility, experiments will be conducted in a controlled softwa
 
 Table 5. Software Environment and Library Versions
 
-| Category | Library / Tool | Version | Purpose in Pipeline |
-| --- | --- | --- | --- |
-| Operating Environment | OS | Linux (HPC-supported) | Execution environment |
-| Programming Language | Python | 3.10 | Primary development language |
-| GPU Stack | CUDA | 12.8 | GPU acceleration |
-|  | cuDNN | CUDA 12.8-compatible | Optimized DL kernels |
-| Deep Learning Framework | PyTorch | 2.4.0 | Core DL framework |
-|  | Torchvision | 0.19.0 | Vision transforms/utilities |
-|  | Torchaudio | 2.4.0 | PyTorch ecosystem consistency |
-| Transformer & Vision Models | Hugging Face Transformers | 4.44.2 | VideoMAE, transformer backbones |
-|  | timm | 1.0.9 | Vision transformer utilities |
-| Detection | RF-DETR (Roboflow) | PyTorch-based (2024 release) | Transformer-based cattle detection |
-| Segmentation | RF-DETR-Seg / Mask2Former | Detectron2-compatible | Instance segmentation |
-| Tracking | OC-SORT | 0.5.3 | Multi-object tracking |
-|  | DINOv3 | Pretrained embeddings | Appearance-based identity association |
-| Detection / Segmentation Tooling | Detectron2 | CUDA 12.x-compatible build | Mask2Former support |
-| Video Processing | OpenCV | 4.10.0 | Video I/O and preprocessing |
-|  | PyAV | 12.0.5 | Efficient video decoding |
-|  | FFmpeg | System-installed | Video format conversion |
-| Evaluation (Det./Seg.) | pycocotools | 2.0.8 | IoU and mask evaluation |
-| Evaluation (Tracking) | TrackEval | 1.0.0 | IDF1 and ID switch metrics |
-|  | motmetrics | 1.4.0 | MOT evaluation |
-| Evaluation (Behavior) | scikit-learn | 1.5.2 | Accuracy and F1-score |
-| Scientific Computing | NumPy | 1.26.4 | Numerical computation |
-|  | SciPy | 1.13.1 | Scientific utilities |
-| Data Handling | pandas | 2.2.3 | Dataset and annotation management |
-| Visualization | Matplotlib | 3.9.2 | Plotting |
-|  | Seaborn | 0.13.2 | Statistical visualization |
-| Experiment Tracking | TensorBoard | 2.17.1 | Training and evaluation logs |
-| Environment Management | Conda (Miniconda) | Latest stable | Reproducible environments |
-| Development Tools | VS Code | Latest stable | Local development and debugging |
+| Category                         | Library / Tool            | Version                      | Purpose in Pipeline                   |
+| -------------------------------- | ------------------------- | ---------------------------- | ------------------------------------- |
+| Operating Environment            | OS                        | Linux (HPC-supported)        | Execution environment                 |
+| Programming Language             | Python                    | 3.10                         | Primary development language          |
+| GPU Stack                        | CUDA                      | 12.8                         | GPU acceleration                      |
+|                                  | cuDNN                     | CUDA 12.8-compatible         | Optimized DL kernels                  |
+| Deep Learning Framework          | PyTorch                   | 2.4.0                        | Core DL framework                     |
+|                                  | Torchvision               | 0.19.0                       | Vision transforms/utilities           |
+|                                  | Torchaudio                | 2.4.0                        | PyTorch ecosystem consistency         |
+| Transformer & Vision Models      | Hugging Face Transformers | 4.44.2                       | VideoMAE, transformer backbones       |
+|                                  | timm                      | 1.0.9                        | Vision transformer utilities          |
+| Detection                        | RF-DETR (Roboflow)        | PyTorch-based (2024 release) | Transformer-based cattle detection    |
+| Segmentation                     | RF-DETR-Seg / Mask2Former | Detectron2-compatible        | Instance segmentation                 |
+| Tracking                         | OC-SORT                   | 0.5.3                        | Multi-object tracking                 |
+|                                  | DINOv3                    | Pretrained embeddings        | Appearance-based identity association |
+| Detection / Segmentation Tooling | Detectron2                | CUDA 12.x-compatible build   | Mask2Former support                   |
+| Video Processing                 | OpenCV                    | 4.10.0                       | Video I/O and preprocessing           |
+|                                  | PyAV                      | 12.0.5                       | Efficient video decoding              |
+|                                  | FFmpeg                    | System-installed             | Video format conversion               |
+| Evaluation (Det./Seg.)           | pycocotools               | 2.0.8                        | IoU and mask evaluation               |
+| Evaluation (Tracking)            | TrackEval                 | 1.0.0                        | IDF1 and ID switch metrics            |
+|                                  | motmetrics                | 1.4.0                        | MOT evaluation                        |
+| Evaluation (Behavior)            | scikit-learn              | 1.5.2                        | Accuracy and F1-score                 |
+| Scientific Computing             | NumPy                     | 1.26.4                       | Numerical computation                 |
+|                                  | SciPy                     | 1.13.1                       | Scientific utilities                  |
+| Data Handling                    | pandas                    | 2.2.3                        | Dataset and annotation management     |
+| Visualization                    | Matplotlib                | 3.9.2                        | Plotting                              |
+|                                  | Seaborn                   | 0.13.2                       | Statistical visualization             |
+| Experiment Tracking              | TensorBoard               | 2.17.1                       | Training and evaluation logs          |
+| Environment Management           | Conda (Miniconda)         | Latest stable                | Reproducible environments             |
+| Development Tools                | VS Code                   | Latest stable                | Local development and debugging       |
 
-**Table ****5** presents the software environment and library versions used throughout this work. The listed tools and frameworks support model development, training, evaluation, and data processing across the proposed pipeline, including detection, segmentation, tracking, and behavior recognition. The versions reported here reflect the initial experimental setup and may be updated during the course of the study as new stable releases become available or as required to maintain compatibility with the HPC system, CUDA environment, or selected model implementations. Any such changes will be documented to ensure consistency and reproducibility of experimental results.
+**Table \*\***5\*\* presents the software environment and library versions used throughout this work. The listed tools and frameworks support model development, training, evaluation, and data processing across the proposed pipeline, including detection, segmentation, tracking, and behavior recognition. The versions reported here reflect the initial experimental setup and may be updated during the course of the study as new stable releases become available or as required to maintain compatibility with the HPC system, CUDA environment, or selected model implementations. Any such changes will be documented to ensure consistency and reproducibility of experimental results.
 
 ### 4.7.3 Environment Setup and Working Plan
 
@@ -548,18 +548,18 @@ Stage 10: Revise, defend, and submit the thesis.
 
 Table 6. Timeline for Thesis Work and Graduation
 
-| Stage | Nov | Dec | Jan | Feb | Mar | Apr | May | Jun | Jul |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Stage 1 – Literature Review |  |  |  |  |  |  |  |  |  |
-| Stage 2 – Dataset Selection |  |  |  |  |  |  |  |  |  |
-| Stage 3 – Proposal Approval |  |  |  |  |  |  |  |  |  |
-| Stage 4 – Data Preparation |  |  |  |  |  |  |  |  |  |
-| Stage 5 – Detection & Segmentation |  |  |  |  |  |  |  |  |  |
-| Stage 6 – Tracking |  |  |  |  |  |  |  |  |  |
-| Stage 7 – Behavior Modeling |  |  |  |  |  |  |  |  |  |
-| Stage 8 – Generalization Evaluation |  |  |  |  |  |  |  |  |  |
-| Stage 9 – Analysis, Results & Writing |  |  |  |  |  |  |  |  |  |
-| Stage 10 – Defense & Graduation |  |  |  |  |  |  |  |  |  |
+| Stage                                 | Nov | Dec | Jan | Feb | Mar | Apr | May | Jun | Jul |
+| ------------------------------------- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Stage 1 – Literature Review           |     |     |     |     |     |     |     |     |     |
+| Stage 2 – Dataset Selection           |     |     |     |     |     |     |     |     |     |
+| Stage 3 – Proposal Approval           |     |     |     |     |     |     |     |     |     |
+| Stage 4 – Data Preparation            |     |     |     |     |     |     |     |     |     |
+| Stage 5 – Detection & Segmentation    |     |     |     |     |     |     |     |     |     |
+| Stage 6 – Tracking                    |     |     |     |     |     |     |     |     |     |
+| Stage 7 – Behavior Modeling           |     |     |     |     |     |     |     |     |     |
+| Stage 8 – Generalization Evaluation   |     |     |     |     |     |     |     |     |     |
+| Stage 9 – Analysis, Results & Writing |     |     |     |     |     |     |     |     |     |
+| Stage 10 – Defense & Graduation       |     |     |     |     |     |     |     |     |     |
 
 # VI. Expected Outcomes and Contributions
 
@@ -593,59 +593,58 @@ Overall, this thesis is intended to serve as a step toward more generalizable, i
 
 # REFERENCES
 
-[1]	G. Li, J. Sun, M. Guan, S. Sun, G. Shi, and C. Zhu, “A New Method for Non-Destructive Identification and Tracking of Multi-Object Behaviors in Beef Cattle Based on Deep Learning,” *Animals*, vol. 14, no. 17, p. 2464, Aug. 2024, doi: 10.3390/ani14172464.
+[1] G. Li, J. Sun, M. Guan, S. Sun, G. Shi, and C. Zhu, “A New Method for Non-Destructive Identification and Tracking of Multi-Object Behaviors in Beef Cattle Based on Deep Learning,” _Animals_, vol. 14, no. 17, p. 2464, Aug. 2024, doi: 10.3390/ani14172464.
 
-[2]	Y. Guo, W. Hong, J. Wu, X. Huang, Y. Qiao, and H. Kong, “Vision-Based Cow Tracking and Feeding Monitoring for Autonomous Livestock Farming: The YOLOv5s-CA+DeepSORT-Vision Transformer,” *IEEE Robot. Autom. Mag.*, vol. 30, no. 4, pp. 68–76, Dec. 2023, doi: 10.1109/MRA.2023.3310857.
+[2] Y. Guo, W. Hong, J. Wu, X. Huang, Y. Qiao, and H. Kong, “Vision-Based Cow Tracking and Feeding Monitoring for Autonomous Livestock Farming: The YOLOv5s-CA+DeepSORT-Vision Transformer,” _IEEE Robot. Autom. Mag._, vol. 30, no. 4, pp. 68–76, Dec. 2023, doi: 10.1109/MRA.2023.3310857.
 
-[3]	B. Tangirala, I. Bhandari, D. Laszlo, D. K. Gupta, R. M. Thomas, and D. Arya, “Livestock Monitoring with Transformer,” 2021, *arXiv*. doi: 10.48550/ARXIV.2111.00801.
+[3] B. Tangirala, I. Bhandari, D. Laszlo, D. K. Gupta, R. M. Thomas, and D. Arya, “Livestock Monitoring with Transformer,” 2021, _arXiv_. doi: 10.48550/ARXIV.2111.00801.
 
-[4]	S. Myat Noe, T. T. Zin, I. Kobayashi, and P. Tin, “Optimizing black cattle tracking in complex open ranch environments using YOLOv8 embedded multi-camera system,” *Sci. Rep.*, vol. 15, no. 1, p. 6820, Feb. 2025, doi: 10.1038/s41598-025-91553-4.
+[4] S. Myat Noe, T. T. Zin, I. Kobayashi, and P. Tin, “Optimizing black cattle tracking in complex open ranch environments using YOLOv8 embedded multi-camera system,” _Sci. Rep._, vol. 15, no. 1, p. 6820, Feb. 2025, doi: 10.1038/s41598-025-91553-4.
 
-[5]	K. E. Ong, S. Retta, R. Srinivasan, S. Tan, and J. Liu, “CattleEyeView: A Multi-task Top-down View Cattle Dataset for Smarter Precision Livestock Farming,” 2023, *arXiv*. doi: 10.48550/ARXIV.2312.08764.
+[5] K. E. Ong, S. Retta, R. Srinivasan, S. Tan, and J. Liu, “CattleEyeView: A Multi-task Top-down View Cattle Dataset for Smarter Precision Livestock Farming,” 2023, _arXiv_. doi: 10.48550/ARXIV.2312.08764.
 
-[6]	K. Li, D. Fan, H. Wu, and A. Zhao, “A new dataset for video-based cow behavior recognition,” *Sci. Rep.*, vol. 14, no. 1, p. 18702, Aug. 2024, doi: 10.1038/s41598-024-65953-x.
+[6] K. Li, D. Fan, H. Wu, and A. Zhao, “A new dataset for video-based cow behavior recognition,” _Sci. Rep._, vol. 14, no. 1, p. 18702, Aug. 2024, doi: 10.1038/s41598-024-65953-x.
 
-[7]	M. Das, G. Ferreira, and C. P. J. Chen, “Evaluating model generalization for cow detection in free-stall barn settings: Insights from the COw LOcalization (COLO) dataset,” *Smart Agric. Technol.*, vol. 11, p. 101054, Aug. 2025, doi: 10.1016/j.atech.2025.101054.
+[7] M. Das, G. Ferreira, and C. P. J. Chen, “Evaluating model generalization for cow detection in free-stall barn settings: Insights from the COw LOcalization (COLO) dataset,” _Smart Agric. Technol._, vol. 11, p. 101054, Aug. 2025, doi: 10.1016/j.atech.2025.101054.
 
-[8]	L. Tong, J. Fang, X. Wang, and Y. Zhao, “Research on Cattle Behavior Recognition and Multi-Object Tracking Algorithm Based on YOLO-BoT,” *Animals*, vol. 14, no. 20, p. 2993, Oct. 2024, doi: 10.3390/ani14202993.
+[8] L. Tong, J. Fang, X. Wang, and Y. Zhao, “Research on Cattle Behavior Recognition and Multi-Object Tracking Algorithm Based on YOLO-BoT,” _Animals_, vol. 14, no. 20, p. 2993, Oct. 2024, doi: 10.3390/ani14202993.
 
-[9]	C. Giannone *et al.*, “Automated dairy cow identification and feeding behaviour analysis using a computer vision model based on YOLOv8,” *Smart Agric. Technol.*, vol. 12, p. 101304, Dec. 2025, doi: 10.1016/j.atech.2025.101304.
+[9] C. Giannone _et al._, “Automated dairy cow identification and feeding behaviour analysis using a computer vision model based on YOLOv8,” _Smart Agric. Technol._, vol. 12, p. 101304, Dec. 2025, doi: 10.1016/j.atech.2025.101304.
 
-[10]	J. Brünger, M. Gentz, I. Traulsen, and R. Koch, “Panoptic Segmentation of Individual Pigs for Posture Recognition,” *Sensors*, vol. 20, no. 13, p. 3710, Jul. 2020, doi: 10.3390/s20133710.
+[10] J. Brünger, M. Gentz, I. Traulsen, and R. Koch, “Panoptic Segmentation of Individual Pigs for Posture Recognition,” _Sensors_, vol. 20, no. 13, p. 3710, Jul. 2020, doi: 10.3390/s20133710.
 
-[11]	H. Ma, Y. Zhao, Z. Yin, Y. Pu, and J. Wang, “Automatic multiple-object tracking of farm livestock with improved MOTR,” *Expert Syst. Appl.*, vol. 281, p. 127605, Jul. 2025, doi: 10.1016/j.eswa.2025.127605.
+[11] H. Ma, Y. Zhao, Z. Yin, Y. Pu, and J. Wang, “Automatic multiple-object tracking of farm livestock with improved MOTR,” _Expert Syst. Appl._, vol. 281, p. 127605, Jul. 2025, doi: 10.1016/j.eswa.2025.127605.
 
-[12]	Z. Cao *et al.*, “Semi-automated annotation for video-based beef cattle behavior recognition,” *Sci. Rep.*, vol. 15, no. 1, p. 17131, May 2025, doi: 10.1038/s41598-025-01948-6.
+[12] Z. Cao _et al._, “Semi-automated annotation for video-based beef cattle behavior recognition,” _Sci. Rep._, vol. 15, no. 1, p. 17131, May 2025, doi: 10.1038/s41598-025-01948-6.
 
-[13]	R. Avanzato, F. Beritelli, and V. F. Puglisi, “Dairy Cow Behavior Recognition Using Computer Vision Techniques and CNN Networks,” in *2022 IEEE International Conference on Internet of Things and Intelligence Systems (IoTaIS)*, BALI, Indonesia: IEEE, Nov. 2022, pp. 122–128. doi: 10.1109/IoTaIS56727.2022.9975979.
+[13] R. Avanzato, F. Beritelli, and V. F. Puglisi, “Dairy Cow Behavior Recognition Using Computer Vision Techniques and CNN Networks,” in _2022 IEEE International Conference on Internet of Things and Intelligence Systems (IoTaIS)_, BALI, Indonesia: IEEE, Nov. 2022, pp. 122–128. doi: 10.1109/IoTaIS56727.2022.9975979.
 
-[14]	G. Gao *et al.*, “CNN-Bi-LSTM: A Complex Environment-Oriented Cattle Behavior Classification Network Based on the Fusion of CNN and Bi-LSTM,” *Sensors*, vol. 23, no. 18, p. 7714, Sep. 2023, doi: 10.3390/s23187714.
+[14] G. Gao _et al._, “CNN-Bi-LSTM: A Complex Environment-Oriented Cattle Behavior Classification Network Based on the Fusion of CNN and Bi-LSTM,” _Sensors_, vol. 23, no. 18, p. 7714, Sep. 2023, doi: 10.3390/s23187714.
 
-[15]	Y. Wang *et al.*, “E3D: An efficient 3D CNN for the recognition of dairy cow’s basic motion behavior,” *Comput. Electron. Agric.*, vol. 205, p. 107607, Feb. 2023, doi: 10.1016/j.compag.2022.107607.
+[15] Y. Wang _et al._, “E3D: An efficient 3D CNN for the recognition of dairy cow’s basic motion behavior,” _Comput. Electron. Agric._, vol. 205, p. 107607, Feb. 2023, doi: 10.1016/j.compag.2022.107607.
 
-[16]	H. Yang *et al.*, “A Computer Vision Pipeline for Individual-Level Behavior Analysis: Benchmarking on the Edinburgh Pig Dataset,” 2025, *arXiv*. doi: 10.48550/ARXIV.2509.12047.
+[16] H. Yang _et al._, “A Computer Vision Pipeline for Individual-Level Behavior Analysis: Benchmarking on the Edinburgh Pig Dataset,” 2025, _arXiv_. doi: 10.48550/ARXIV.2509.12047.
 
-[17]	S. Xiang, P. M. Blok, J. Burridge, H. Wang, and W. Guo, “DODA: Adapting Object Detectors to Dynamic Agricultural Environments in Real-Time with Diffusion,” Nov. 11, 2025, *arXiv*: arXiv:2403.18334. doi: 10.48550/arXiv.2403.18334.
+[17] S. Xiang, P. M. Blok, J. Burridge, H. Wang, and W. Guo, “DODA: Adapting Object Detectors to Dynamic Agricultural Environments in Real-Time with Diffusion,” Nov. 11, 2025, _arXiv_: arXiv:2403.18334. doi: 10.48550/arXiv.2403.18334.
 
-[18]	A. Zia *et al.*, “CVB: A Video Dataset of Cattle Visual Behaviors,” 2023, *arXiv*. doi: 10.48550/ARXIV.2305.16555.
+[18] A. Zia _et al._, “CVB: A Video Dataset of Cattle Visual Behaviors,” 2023, _arXiv_. doi: 10.48550/ARXIV.2305.16555.
 
-[19]	M. Mishra, N. Anand, and P. Verma, “A Hybrid YOLOv8-Transformer Framework for Accurate Cattle Behavior Classification and Tracking in Complex Farm Environments,” *IETE J. Res.*, pp. 1–18, Jul. 2025, doi: 10.1080/03772063.2025.2525984.
+[19] M. Mishra, N. Anand, and P. Verma, “A Hybrid YOLOv8-Transformer Framework for Accurate Cattle Behavior Classification and Tracking in Complex Farm Environments,” _IETE J. Res._, pp. 1–18, Jul. 2025, doi: 10.1080/03772063.2025.2525984.
 
-[20]	W. Andrew, J. Gao, S. Mullan, N. Campbell, A. W. Dowsey, and T. Burghardt, “Visual identification of individual Holstein-Friesian cattle via deep metric learning,” *Comput. Electron. Agric.*, vol. 185, p. 106133, Jun. 2021, doi: 10.1016/j.compag.2021.106133.
+[20] W. Andrew, J. Gao, S. Mullan, N. Campbell, A. W. Dowsey, and T. Burghardt, “Visual identification of individual Holstein-Friesian cattle via deep metric learning,” _Comput. Electron. Agric._, vol. 185, p. 106133, Jun. 2021, doi: 10.1016/j.compag.2021.106133.
 
-[21]	J. Gao, T. Burghardt, W. Andrew, A. W. Dowsey, and N. W. Campbell, “Towards Self-Supervision for Video Identification of Individual Holstein-Friesian Cattle: The Cows2021 Dataset,” May 05, 2021, *arXiv*: arXiv:2105.01938. doi: 10.48550/arXiv.2105.01938.
+[21] J. Gao, T. Burghardt, W. Andrew, A. W. Dowsey, and N. W. Campbell, “Towards Self-Supervision for Video Identification of Individual Holstein-Friesian Cattle: The Cows2021 Dataset,” May 05, 2021, _arXiv_: arXiv:2105.01938. doi: 10.48550/arXiv.2105.01938.
 
-[22]	N. Ravi *et al.*, “SAM 2: Segment Anything in Images and Videos,” Oct. 28, 2024, *arXiv*: arXiv:2408.00714. doi: 10.48550/arXiv.2408.00714.
+[22] N. Ravi _et al._, “SAM 2: Segment Anything in Images and Videos,” Oct. 28, 2024, _arXiv_: arXiv:2408.00714. doi: 10.48550/arXiv.2408.00714.
 
-[23]	L. Zhang, J. Gao, Z. Xiao, and H. Fan, “AnimalTrack: A Benchmark for Multi-Animal Tracking in the Wild,” *Int. J. Comput. Vis.*, vol. 131, no. 2, pp. 496–513, Feb. 2023, doi: 10.1007/s11263-022-01711-8.
+[23] L. Zhang, J. Gao, Z. Xiao, and H. Fan, “AnimalTrack: A Benchmark for Multi-Animal Tracking in the Wild,” _Int. J. Comput. Vis._, vol. 131, no. 2, pp. 496–513, Feb. 2023, doi: 10.1007/s11263-022-01711-8.
 
-[24]	M. F. Sohan, R. Alzubi, H. Alzoubi, E. Albalawi, and A. H. A. Hafez, “Direct Video-Based Spatiotemporal Deep Learning for Cattle Lameness Detection,” Sep. 18, 2025, *arXiv*: arXiv:2504.16404. doi: 10.48550/arXiv.2504.16404.
+[24] M. F. Sohan, R. Alzubi, H. Alzoubi, E. Albalawi, and A. H. A. Hafez, “Direct Video-Based Spatiotemporal Deep Learning for Cattle Lameness Detection,” Sep. 18, 2025, _arXiv_: arXiv:2504.16404. doi: 10.48550/arXiv.2504.16404.
 
-[25]	A. Bhujel, Y. Wang, Y. Lu, D. Morris, and M. Dangol, “A systematic survey of public computer vision datasets for precision livestock farming,” *Comput. Electron. Agric.*, vol. 229, p. 109718, Feb. 2025, doi: 10.1016/j.compag.2024.109718.
+[25] A. Bhujel, Y. Wang, Y. Lu, D. Morris, and M. Dangol, “A systematic survey of public computer vision datasets for precision livestock farming,” _Comput. Electron. Agric._, vol. 229, p. 109718, Feb. 2025, doi: 10.1016/j.compag.2024.109718.
 
-[26]	I. Nikolov, “DigiWeather: Synthetic Rain, Snow and Fog Dataset Augmentation,” in *Extended Reality*, vol. 15027, L. T. De Paolis, P. Arpaia, and M. Sacco, Eds., in Lecture Notes in Computer Science, vol. 15027. , Cham: Springer Nature Switzerland, 2024, pp. 22–41. doi: 10.1007/978-3-031-71707-9_2.
+[26] I. Nikolov, “DigiWeather: Synthetic Rain, Snow and Fog Dataset Augmentation,” in _Extended Reality_, vol. 15027, L. T. De Paolis, P. Arpaia, and M. Sacco, Eds., in Lecture Notes in Computer Science, vol. 15027. , Cham: Springer Nature Switzerland, 2024, pp. 22–41. doi: 10.1007/978-3-031-71707-9_2.
 
-[27]	S. Myat Noe, T. T. Zin, P. Tin, and I. Kobayashi, “Comparing State-of-the-Art Deep Learning Algorithms for the Automated Detection and Tracking of Black Cattle,” *Sensors*, vol. 23, no. 1, p. 532, Jan. 2023, doi: 10.3390/s23010532.
+[27] S. Myat Noe, T. T. Zin, P. Tin, and I. Kobayashi, “Comparing State-of-the-Art Deep Learning Algorithms for the Automated Detection and Tracking of Black Cattle,” _Sensors_, vol. 23, no. 1, p. 532, Jan. 2023, doi: 10.3390/s23010532.
 
-[28]	D. of I. T. Texas State University, “LEAP2 High Performance Computing,” LEAP2 High Performance Computing. [Online]. Available: https://doit.txst.edu/hpc.html
-
+[28] D. of I. T. Texas State University, “LEAP2 High Performance Computing,” LEAP2 High Performance Computing. [Online]. Available: https://doit.txst.edu/hpc.html
