@@ -1,35 +1,37 @@
-# Cattle Vision Framework — Claude Code Navigation Guide
-
-> **Other agents:** see `AGENTS.md` (same content, generic format).
-
-## 1. Project Overview
+# Cattle Vision Framework — AI Agent Navigation Guide
 
 MS thesis project (Texas State University, Sakif Khan, 2026) that recognizes 7 dairy-cattle
 behaviors from surveillance video. The pipeline runs RF-DETR detection → SAM2 segmentation →
 OC-SORT tracking → VideoMAE classification → activity-budget analytics.
 
-## 2. Repository Map
+> **Claude Code users:** this file is also present as `CLAUDE.md` (identical content).
 
-| Directory       | Purpose                                                          |
-| --------------- | ---------------------------------------------------------------- |
-| `src/`          | Library modules — no `main()` calls; import from scripts         |
-| `scripts/`      | Numbered shell wrappers (01–12) that run the pipeline end-to-end |
-| `configs/`      | YAML experiment configs; all hyperparams live here               |
-| `docker/`       | One Dockerfile per pipeline stage group + docker-compose.yml     |
-| `notebooks/`    | Visualization and figure generation only                         |
-| `results/`      | **Committed** small result files (JSON, CSV, PNG)                |
-| `runs/`         | Gitignored large checkpoints; download from HuggingFace          |
-| `weights/`      | Gitignored pretrained weights; download from HuggingFace         |
-| `data/`         | `label_map.json` committed; `raw/` and `processed/` gitignored   |
-| `paper/`        | AIIoT26 paper figures and sample images                          |
-| `docs/`         | End-user docs; `docs/design/` has internal planning docs         |
-| `logs/`         | HiPE1 training logs (committed, informational)                   |
-| `tests/`        | Unit tests (`pytest`)                                            |
-| `third_party/`  | Gitignored; OC-SORT cloned here during setup                     |
-| `_archive/`     | Gitignored; archived large files (seg runs, old OC-SORT copy)    |
-| `scripts/hipe/` | HiPE1-specific training scripts (run via Docker on V100)         |
+---
 
-## 3. Pipeline Execution Order
+## 1. Repository Map
+
+| Directory | Purpose |
+|---|---|
+| `src/` | Library modules — no `main()` calls; import from scripts |
+| `scripts/` | Numbered shell wrappers (01–12) that run the pipeline end-to-end |
+| `configs/` | YAML experiment configs; all hyperparams live here |
+| `docker/` | One Dockerfile per pipeline stage group + docker-compose.yml |
+| `notebooks/` | Visualization and figure generation only |
+| `results/` | **Committed** small result files (JSON, CSV, PNG) |
+| `runs/` | Gitignored large checkpoints; download from HuggingFace |
+| `weights/` | Gitignored pretrained weights; download from HuggingFace |
+| `data/` | `label_map.json` committed; `raw/` and `processed/` gitignored |
+| `paper/` | AIIoT26 paper figures and sample images |
+| `docs/` | End-user docs; `docs/design/` has internal planning docs |
+| `logs/` | HiPE1 training logs (committed, informational) |
+| `tests/` | Unit tests (`pytest`) |
+| `third_party/` | Gitignored; OC-SORT cloned here during setup |
+| `_archive/` | Gitignored; archived large files (seg runs, old reports) |
+| `scripts/hipe/` | HiPE1-specific training scripts (run via Docker on V100) |
+
+---
+
+## 2. Pipeline Execution Order
 
 Each script depends on the output of the previous one. Run from repo root.
 
@@ -49,32 +51,36 @@ Each script depends on the output of the previous one. Run from repo root.
 12_generate_analytics.sh  reads  results/behavior/predictions/ + tracking_v2/ → results/analytics/
 ```
 
-## 4. External Dependencies (NOT in repo)
+---
 
-| Dependency           | How to install                                                                                             | Used by                       |
-| -------------------- | ---------------------------------------------------------------------------------------------------------- | ----------------------------- |
-| OC-SORT              | `git clone https://github.com/noahcao/OC_SORT.git third_party/OC_SORT`                                     | `src/tracking/track.py`       |
-| SAM2                 | `pip install 'sam2 @ git+https://github.com/facebookresearch/sam2.git'`                                    | `src/segmentation/segment.py` |
-| SAM2 checkpoint      | Download via SAM2 repo script → `weights/sam2.1_hiera_large.pt`                                            | SAM2 segmentation             |
-| RF-DETR backbone     | `huggingface-cli download sakifkhan/cattle-vision-framework rf-detr-medium.pth` → `weights/`               | detector training             |
-| Detector checkpoint  | HuggingFace: `rfdetr_combined_v1_best.pth` → `runs/detection/rfdetr_combined_v1/checkpoint_best_total.pth` | script 06+                    |
-| VideoMAE checkpoints | HuggingFace: `videomae_*_v1.pt` → `runs/behavior/videomae_*_v1/checkpoint_best.pt`                         | scripts 11–12                 |
+## 3. External Dependencies (NOT in repo)
+
+| Dependency | How to install | Used by |
+|---|---|---|
+| OC-SORT | `git clone https://github.com/noahcao/OC_SORT.git third_party/OC_SORT` | `src/tracking/track.py` |
+| SAM2 | `pip install 'sam2 @ git+https://github.com/facebookresearch/sam2.git'` | `src/segmentation/segment.py` |
+| SAM2 checkpoint | Download via SAM2 repo script → `weights/sam2.1_hiera_large.pt` | SAM2 segmentation |
+| RF-DETR backbone | `huggingface-cli download sakifkhan/cattle-vision-framework rf-detr-medium.pth` → `weights/` | detector training |
+| Detector checkpoint | HuggingFace: `rfdetr_combined_v1_best.pth` → `runs/detection/rfdetr_combined_v1/checkpoint_best_total.pth` | script 06+ |
+| VideoMAE checkpoints | HuggingFace: `videomae_*_v1.pt` → `runs/behavior/videomae_*_v1/checkpoint_best.pt` | scripts 11–12 |
 
 See `docs/setup.md` for exact download commands.
 
-## 5. Frozen Decisions (do not change)
+---
+
+## 4. Frozen Decisions (do not change)
 
 **7-class label map** — defined in `data/label_map.json` and `src/data/label_utils.py`:
 
-| ID  | Behavior         | Datasets    |
-| --- | ---------------- | ----------- |
-| 0   | Standing         | CBVD-5, CVB |
-| 1   | Lying            | CBVD-5, CVB |
-| 2   | Foraging/Grazing | CBVD-5, CVB |
-| 3   | Drinking         | CBVD-5, CVB |
-| 4   | Ruminating       | CBVD-5, CVB |
-| 5   | Grooming         | CVB only    |
-| 6   | Other            | CVB only    |
+| ID | Behavior | Datasets |
+|---|---|---|
+| 0 | Standing | CBVD-5, CVB |
+| 1 | Lying | CBVD-5, CVB |
+| 2 | Foraging/Grazing | CBVD-5, CVB |
+| 3 | Drinking | CBVD-5, CVB |
+| 4 | Ruminating | CBVD-5, CVB |
+| 5 | Grooming | CVB only |
+| 6 | Other | CVB only |
 
 Cross-dataset eval uses IDs 0–4 only.
 
@@ -85,7 +91,9 @@ Cross-dataset eval uses IDs 0–4 only.
 **GPU constraints (RTX 3060, 12 GB):** batch 4, grad accum 4 (effective 16), resolution 576
 (must be divisible by 64), BF16 mixed precision + gradient checkpointing always on.
 
-## 6. Data Contracts
+---
+
+## 5. Data Contracts
 
 **Tracking JSON** (`data/processed/tracking_v2/{dataset}/{video_id}_tracks.json`):
 
@@ -104,44 +112,52 @@ Frame keys are string integers. `bbox` is absolute pixels `[x1,y1,x2,y2]`.
 
 **labels.csv** (`data/processed/tubelets/labels.csv`):
 Columns: `dataset, video_id, tubelet_dir, start_frame, end_frame, label_id`
-`track_id` is the last path component of `tubelet_dir` (e.g., `data/processed/tubelets/cbvd5/341/kf6_instc85ac7`).
+`track_id` is the last path component of `tubelet_dir`.
 
 **Predictions CSV** (`results/behavior/predictions/{run}_val.csv`):
 Columns: `dataset, video_id, tubelet_dir, start_frame, end_frame, label_id, pred_label_id, logit_0..6`
 
-## 7. Key Results
+---
 
-| Stage                                | Metric                          | Value      |
-| ------------------------------------ | ------------------------------- | ---------- |
-| Detection                            | mAP@50 (combined, cross-domain) | 70.4%      |
-| Tracking                             | IDF1                            | 67.31%     |
-| Tracking                             | MOTA                            | 36.61%     |
-| Behavior Config 1 (CBVD-5 in-domain) | macro-F1                        | 0.3149     |
-| Behavior Config 2 (CVB in-domain)    | macro-F1                        | 0.7607     |
-| Behavior Config 3 (CBVD-5→CVB)       | macro-F1                        | 0.1690     |
-| Behavior Config 4 (CVB→CBVD-5)       | macro-F1                        | 0.1789     |
-| Behavior Config 5 (combined)         | macro-F1                        | **0.7537** |
+## 6. Key Results
+
+| Stage | Metric | Value |
+|---|---|---|
+| Detection | mAP@50 (combined, cross-domain) | 70.4% |
+| Tracking | IDF1 | 67.31% |
+| Tracking | MOTA | 36.61% |
+| Behavior Config 1 (CBVD-5 in-domain) | macro-F1 | 0.3149 |
+| Behavior Config 2 (CVB in-domain) | macro-F1 | 0.7607 |
+| Behavior Config 3 (CBVD-5→CVB) | macro-F1 | 0.1690 |
+| Behavior Config 4 (CVB→CBVD-5) | macro-F1 | 0.1789 |
+| Behavior Config 5 (combined) | macro-F1 | **0.7537** |
 
 Full per-class breakdown in `results/behavior/f1_per_class.csv`.
 
-## 8. Common Gotchas
+---
+
+## 7. Common Gotchas
 
 - **CBVD-5 test=val**: The dataset has no separate test set; validation split is used as test.
-- **CVB frame presence**: Not all annotated frames have corresponding image files. `convert_cvb.py` filters to present frames only.
-- **Class weights**: Computed from tubelet label distribution per config (not from raw annotation counts). Logic in `src/behavior/dataset.py`.
+- **CVB frame presence**: Not all annotated frames have image files. `convert_cvb.py` filters to present frames only.
+- **Class weights**: Computed from tubelet label distribution per config (not raw annotation counts). Logic in `src/behavior/dataset.py`.
 - **Docker shm-size**: VideoMAE DataLoader requires `--shm-size=16g` with Docker. See `docker/docker-compose.yml`.
 - **conda not in PATH**: On HiPE1, activate with `source /home/zxs12/miniconda3/etc/profile.d/conda.sh && conda activate cattletransformer`.
 - **OC-SORT path**: `src/tracking/track.py` inserts `third_party/OC_SORT` into `sys.path` at runtime. Must clone before running script 08.
 - **`results/` is committed**: Do not add `results/` to `.gitignore`. Only specific large subdirs are gitignored.
 
-## 9. HiPE1 Server
+---
+
+## 8. HiPE1 Server
 
 - SSH alias: configure `~/.ssh/config` with `Host hipe1` → see `docs/hipe_ops.md`
 - Home dir: `/home/zxs12/`
 - Training scripts: `scripts/hipe/` (run via Docker)
 - Docker eval pattern: `docker run --gpus all --shm-size=16g -v $(pwd):/workspace cattle-behavior python src/behavior/train.py --config configs/behavior/videomae_combined.yaml`
 
-## 10. Current Status
+---
+
+## 9. Current Status
 
 **Phases 0–7 complete.** Repo is live at `github.com/SakifKhan98/cattle-vision-framework`.
 
@@ -162,13 +178,15 @@ Full per-class breakdown in `results/behavior/f1_per_class.csv`.
 1. OpenCows2020 — detection mAP (OOD generalization, images only)
 2. Cows2021 — detection mAP + short-term tracking IDF1
 3. CattleEyeView — detection + Mask IoU + IDF1
-4. Freeman Center — full pipeline + behavior F1 + activity budgets (Freeman Center annotation format and local path TBD)
+4. Freeman Center — full pipeline + behavior F1 + activity budgets
 
 **Remaining TODOs:**
 - Upload model weights to HuggingFace (`sakifkhan/cattle-vision-framework`)
 - Upload tracking_v2 data to `sakifkhan/cattle-vision-data`
 
-## 11. Design Documents
+---
+
+## 10. Design Documents
 
 All phase reports and planning docs live in `docs/design/`:
 
