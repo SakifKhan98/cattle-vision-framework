@@ -942,7 +942,7 @@ Check off each step as it is completed. If a session ends mid-step, note the las
 - [x] Step E — Script audit (delete empty stubs, write empty numbered scripts) + core files (.gitignore, README.md, CLAUDE.md, requirements.txt, environment.yml)
 - [x] Step F — New documentation (setup.md, pipeline.md, datasets.md, results.md, docker.md, hipe_ops.md)
 - [x] Step G — .docx → Markdown conversion
-- [x] Step H — Git init, initial commit, GitHub push (substeps 1–5 done; 6–7 pending GitHub URL from user)
+- [x] Step H — Git init, initial commit, GitHub push (https://github.com/SakifKhan98/cattle-vision-framework)
 - [ ] Step I — Phase 7 analytics (timeline.py, budget.py, additional datasets, script 12)
 
 ---
