@@ -31,7 +31,10 @@ echo "  Input : $TRACKING_DIR"
 echo "  Output: $OUTPUT_DIR"
 echo "========================================"
 
-python src/data/export_tubelets.py
+python src/data/export_tubelets.py \
+    --output "$OUTPUT_DIR" \
+    --cvb_tracking "$TRACKING_DIR/cvb" \
+    --cbvd5_tracking "$TRACKING_DIR/cbvd5"
 
 echo ""
 echo "========================================"
