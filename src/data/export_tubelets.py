@@ -35,6 +35,8 @@ def _crop_frame(img: any, bbox: list[float], pad: int = 20) -> any:
     y1 = max(0, int(bbox[1]) - pad)
     x2 = min(W, int(bbox[2]) + pad)
     y2 = min(H, int(bbox[3]) + pad)
+    if x2 <= x1 or y2 <= y1:
+        return None
     return img[y1:y2, x1:x2]
 
 
@@ -166,6 +168,9 @@ def export_cvb_tubelets(
                                 nearest = min(sorted_bbox_frames, key=lambda f: abs(f - frame_int))
                                 bbox = track_bbox[nearest]
                             crop = _crop_frame(img, bbox)
+                            if crop is None or crop.size == 0:
+                                save_ok = False
+                                break
                             cv2.imwrite(
                                 os.path.join(out_dir, f"frame_{i:02d}.jpg"),
                                 crop,
@@ -285,8 +290,12 @@ def export_cbvd5_tubelets(
                 shutil.rmtree(out_dir, ignore_errors=True)
                 continue
 
-            for i, frame in enumerate(frames):
-                crop = _crop_frame(frame, crop_bbox)
+            crops = [_crop_frame(f, crop_bbox) for f in frames]
+            if any(c is None or c.size == 0 for c in crops):
+                import shutil
+                shutil.rmtree(out_dir, ignore_errors=True)
+                continue
+            for i, crop in enumerate(crops):
                 cv2.imwrite(
                     os.path.join(out_dir, f"frame_{i:02d}.jpg"),
                     crop,

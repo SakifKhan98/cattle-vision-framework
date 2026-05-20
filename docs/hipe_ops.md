@@ -9,11 +9,11 @@ RF-DETR-Seg training (Phase 3b) and VideoMAE behavior training (Phase 6).
 
 ## 1. Hardware
 
-| Machine | GPU | VRAM | CUDA | Role |
-|---------|-----|------|------|------|
-| Local (dubuntu) | RTX 3060 | 12 GB | 13.1 | Smoke testing |
-| HiPE1 | 2× Tesla V100 | 16 GB each | 12.2 | RF-DETR-Seg (Configs A+B) + VideoMAE training |
-| HiPE2 | 2× Tesla V100 | 16 GB each | 12.2 | RF-DETR-Seg (Configs C+D) |
+| Machine         | GPU           | VRAM       | CUDA | Role                                          |
+| --------------- | ------------- | ---------- | ---- | --------------------------------------------- |
+| Local (dubuntu) | RTX 3060      | 12 GB      | 13.1 | Smoke testing                                 |
+| HiPE1           | 2× Tesla V100 | 16 GB each | 12.2 | RF-DETR-Seg (Configs A+B) + VideoMAE training |
+| HiPE2           | 2× Tesla V100 | 16 GB each | 12.2 | RF-DETR-Seg (Configs C+D)                     |
 
 Access path: `Local → leap2.txstate.edu → hipe1/hipe2.mitte.txstate.edu`
 
@@ -48,6 +48,7 @@ Host hipe2
 ```
 
 **Test:**
+
 ```bash
 ssh hipe1 "nvidia-smi"
 ```
@@ -72,11 +73,13 @@ Add to `~/.bashrc` on hipe1 for persistence.
 All training runs on HiPE use Docker containers to avoid environment conflicts.
 
 **Verify GPU access:**
+
 ```bash
 ssh hipe1 "docker run --rm --gpus all nvidia/cuda:12.1.0-base-ubuntu22.04 nvidia-smi"
 ```
 
 **If GPU unavailable:**
+
 ```bash
 sudo ldconfig
 sudo nvidia-ctk runtime configure --runtime=docker
@@ -135,12 +138,12 @@ mv valid/images/* valid/ && rmdir valid/images
 
 ### 5.3 4-Config Hyperparameter Grid
 
-| Config | Server | GPU | Model | LR | Effective Batch |
-|--------|--------|-----|-------|----|----------------|
-| A | HiPE1 | 0 | medium | 1e-4 | 8 (bs=4, accum=2) |
-| B | HiPE1 | 1 | medium | 5e-5 | 4 (bs=4, accum=1) |
-| C | HiPE2 | 0 | large | 1e-4 | 4 (bs=4, accum=1) |
-| D | HiPE2 | 1 | large | 5e-5 | 4 (bs=4, accum=1) |
+| Config | Server | GPU | Model  | LR   | Effective Batch   |
+| ------ | ------ | --- | ------ | ---- | ----------------- |
+| A      | HiPE1  | 0   | medium | 1e-4 | 8 (bs=4, accum=2) |
+| B      | HiPE1  | 1   | medium | 5e-5 | 4 (bs=4, accum=1) |
+| C      | HiPE2  | 0   | large  | 1e-4 | 4 (bs=4, accum=1) |
+| D      | HiPE2  | 1   | large  | 5e-5 | 4 (bs=4, accum=1) |
 
 **Best result:** Config B (medium, lr=5e-5), epoch 59. Checkpoint: `weights/rf-detr-seg-medium.pt`.
 
@@ -153,6 +156,7 @@ tmux new-session -s thesis
 ```
 
 **Window 0 — Config A (GPU 0):**
+
 ```bash
 docker run --rm \
     --gpus all \
@@ -168,6 +172,7 @@ docker run --rm \
 `Ctrl+B c` — new window.
 
 **Window 1 — Config B (GPU 1):**
+
 ```bash
 docker run --rm \
     --gpus '"device=1"' \
@@ -184,6 +189,7 @@ docker run --rm \
 `Ctrl+B d` to detach.
 
 **HiPE2 — Config C (GPU 0):**
+
 ```bash
 ssh hipe2
 tmux new-session -s thesis
@@ -201,14 +207,14 @@ docker run --rm \
 
 ### 5.5 Environment Variables (train_rfdetr_seg_parameterized.py)
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `MODEL` | `medium` | `medium` or `large` |
-| `LR` | `1e-4` | Learning rate |
-| `EPOCHS` | `100` | Training epochs |
-| `BATCH_SIZE` | `4` | Per-GPU batch size |
-| `GRAD_ACCUM` | `1` | Gradient accumulation steps |
-| `RUN_NAME` | auto | Output dir under `runs/` |
+| Variable     | Default  | Description                 |
+| ------------ | -------- | --------------------------- |
+| `MODEL`      | `medium` | `medium` or `large`         |
+| `LR`         | `1e-4`   | Learning rate               |
+| `EPOCHS`     | `100`    | Training epochs             |
+| `BATCH_SIZE` | `4`      | Per-GPU batch size          |
+| `GRAD_ACCUM` | `1`      | Gradient accumulation steps |
+| `RUN_NAME`   | auto     | Output dir under `runs/`    |
 
 ### 5.6 Retrieving RF-DETR-Seg Results
 
