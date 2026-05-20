@@ -103,9 +103,13 @@ docker run --rm \
     -v $(pwd)/configs:/workspace/configs:ro \
     -v $(pwd)/src:/workspace/src:ro \
     cattle-videomae:v1 \
-    python src/behavior/train.py --config configs/behavior/CONFIG_FILE \
+    src/behavior/train.py --config configs/behavior/CONFIG_FILE \
     2>&1 | tee logs/LOG_FILE
 ```
+
+> **Do NOT prefix the script with `python` or `python3`.** The image entrypoint is
+> already `python3` — adding it again causes Docker to run `python3 python3 …` and
+> fail with `can't open file '/workspace/python3'`. Just pass the script path directly.
 
 > **`--shm-size=16g` is required.** The VideoMAE DataLoader fails with
 > `RuntimeError: No space left on device` without it.
@@ -123,7 +127,7 @@ docker run --rm \
     -v $(pwd)/configs:/workspace/configs:ro \
     -v $(pwd)/src:/workspace/src:ro \
     cattle-videomae:v1 \
-    python src/behavior/train.py --config configs/behavior/videomae_combined_v2.yaml \
+    src/behavior/train.py --config configs/behavior/videomae_combined_v2.yaml \
     2>&1 | tee logs/combined_v2.log
 ```
 
@@ -140,7 +144,7 @@ docker run --rm \
     -v $(pwd)/configs:/workspace/configs:ro \
     -v $(pwd)/src:/workspace/src:ro \
     cattle-videomae:v1 \
-    python src/behavior/train.py --config configs/behavior/videomae_cvb_v2.yaml \
+    src/behavior/train.py --config configs/behavior/videomae_cvb_v2.yaml \
     2>&1 | tee logs/cvb_v2.log
 ```
 
@@ -162,7 +166,7 @@ docker run --rm \
     -v $(pwd)/configs:/workspace/configs:ro \
     -v $(pwd)/src:/workspace/src:ro \
     cattle-videomae:v1 \
-    python src/behavior/train.py --config configs/behavior/videomae_cbvd5_v2.yaml \
+    src/behavior/train.py --config configs/behavior/videomae_cbvd5_v2.yaml \
     2>&1 | tee logs/cbvd5_v2.log
 ```
 
@@ -177,7 +181,7 @@ docker run --rm \
     -v $(pwd)/configs:/workspace/configs:ro \
     -v $(pwd)/src:/workspace/src:ro \
     cattle-videomae:v1 \
-    python src/behavior/train.py --config configs/behavior/videomae_cbvd5_to_cvb_v2.yaml \
+    src/behavior/train.py --config configs/behavior/videomae_cbvd5_to_cvb_v2.yaml \
     2>&1 | tee logs/cbvd5_to_cvb_v2.log
 ```
 
@@ -192,7 +196,7 @@ docker run --rm \
     -v $(pwd)/configs:/workspace/configs:ro \
     -v $(pwd)/src:/workspace/src:ro \
     cattle-videomae:v1 \
-    python src/behavior/train.py --config configs/behavior/videomae_cvb_to_cbvd5_v2.yaml \
+    src/behavior/train.py --config configs/behavior/videomae_cvb_to_cbvd5_v2.yaml \
     2>&1 | tee logs/cvb_to_cbvd5_v2.log
 ```
 
@@ -343,6 +347,24 @@ on disk during a run — kill the container, edit, then relaunch.
 The image on HiPE1 is `cattle-videomae:v1`. Do not use `cattle-behavior` (that name
 is referenced in some older scripts but was never the actual tag on HiPE1).
 
+### "can't open file '/workspace/python3'" or "can't open file '/workspace/python'"
+
+The image entrypoint is already `python3`. Do not prefix the script with `python` or
+`python3` — pass the script path directly as shown in all commands above.
+If the entrypoint still causes problems, override it with bash:
+
+```bash
+docker run --rm --gpus '"device=0"' --shm-size=16g \
+    --entrypoint bash \
+    -v $(pwd)/data:/workspace/data:ro \
+    -v $(pwd)/runs:/workspace/runs \
+    -v $(pwd)/configs:/workspace/configs:ro \
+    -v $(pwd)/src:/workspace/src:ro \
+    cattle-videomae:v1 \
+    -c "python3 src/behavior/train.py --config configs/behavior/videomae_combined_v2.yaml" \
+    2>&1 | tee logs/combined_v2.log
+```
+
 ### tmux session missing (HiPE1 rebooted)
 
 ```bash
@@ -360,34 +382,39 @@ ssh hipe1 "tail -5 ~/cattle_behavior/logs/combined_v2.log"   # find last epoch
 docker run --rm --gpus '"device=0"' --shm-size=16g \
   -v $(pwd)/data:/workspace/data:ro -v $(pwd)/runs:/workspace/runs \
   -v $(pwd)/configs:/workspace/configs:ro -v $(pwd)/src:/workspace/src:ro \
-  cattle-videomae:v1 python src/behavior/train.py \
-  --config configs/behavior/videomae_combined_v2.yaml 2>&1 | tee logs/combined_v2.log
+  cattle-videomae:v1 \
+  src/behavior/train.py --config configs/behavior/videomae_combined_v2.yaml \
+  2>&1 | tee logs/combined_v2.log
 
 # cvb_v2   (GPU 1)
 docker run --rm --gpus '"device=1"' --shm-size=16g \
   -v $(pwd)/data:/workspace/data:ro -v $(pwd)/runs:/workspace/runs \
   -v $(pwd)/configs:/workspace/configs:ro -v $(pwd)/src:/workspace/src:ro \
-  cattle-videomae:v1 python src/behavior/train.py \
-  --config configs/behavior/videomae_cvb_v2.yaml 2>&1 | tee logs/cvb_v2.log
+  cattle-videomae:v1 \
+  src/behavior/train.py --config configs/behavior/videomae_cvb_v2.yaml \
+  2>&1 | tee logs/cvb_v2.log
 
 # cbvd5_v2   (GPU 0 or 1)
 docker run --rm --gpus '"device=0"' --shm-size=16g \
   -v $(pwd)/data:/workspace/data:ro -v $(pwd)/runs:/workspace/runs \
   -v $(pwd)/configs:/workspace/configs:ro -v $(pwd)/src:/workspace/src:ro \
-  cattle-videomae:v1 python src/behavior/train.py \
-  --config configs/behavior/videomae_cbvd5_v2.yaml 2>&1 | tee logs/cbvd5_v2.log
+  cattle-videomae:v1 \
+  src/behavior/train.py --config configs/behavior/videomae_cbvd5_v2.yaml \
+  2>&1 | tee logs/cbvd5_v2.log
 
 # cbvd5_to_cvb_v2   (GPU 0 or 1)
 docker run --rm --gpus '"device=1"' --shm-size=16g \
   -v $(pwd)/data:/workspace/data:ro -v $(pwd)/runs:/workspace/runs \
   -v $(pwd)/configs:/workspace/configs:ro -v $(pwd)/src:/workspace/src:ro \
-  cattle-videomae:v1 python src/behavior/train.py \
-  --config configs/behavior/videomae_cbvd5_to_cvb_v2.yaml 2>&1 | tee logs/cbvd5_to_cvb_v2.log
+  cattle-videomae:v1 \
+  src/behavior/train.py --config configs/behavior/videomae_cbvd5_to_cvb_v2.yaml \
+  2>&1 | tee logs/cbvd5_to_cvb_v2.log
 
 # cvb_to_cbvd5_v2   (GPU 0 or 1)
 docker run --rm --gpus '"device=0"' --shm-size=16g \
   -v $(pwd)/data:/workspace/data:ro -v $(pwd)/runs:/workspace/runs \
   -v $(pwd)/configs:/workspace/configs:ro -v $(pwd)/src:/workspace/src:ro \
-  cattle-videomae:v1 python src/behavior/train.py \
-  --config configs/behavior/videomae_cvb_to_cbvd5_v2.yaml 2>&1 | tee logs/cvb_to_cbvd5_v2.log
+  cattle-videomae:v1 \
+  src/behavior/train.py --config configs/behavior/videomae_cvb_to_cbvd5_v2.yaml \
+  2>&1 | tee logs/cvb_to_cbvd5_v2.log
 ```
