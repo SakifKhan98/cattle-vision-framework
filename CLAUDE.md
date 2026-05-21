@@ -111,17 +111,18 @@ Columns: `dataset, video_id, tubelet_dir, start_frame, end_frame, label_id, pred
 
 ## 7. Key Results
 
-| Stage                                | Metric                          | Value      |
-| ------------------------------------ | ------------------------------- | ---------- |
-| Detection                            | mAP@50 (combined, cross-domain) | 70.4%      |
-| Tracking                             | IDF1                            | 67.31%     |
-| Tracking                             | MOTA                            | 36.61%     |
-| Behavior Config 1 (CBVD-5 in-domain) | macro-F1                        | 0.3149     |
-| Behavior Config 2 (CVB in-domain)    | macro-F1                        | 0.7607     |
-| Behavior Config 3 (CBVD-5→CVB)       | macro-F1                        | 0.1690     |
-| Behavior Config 4 (CVB→CBVD-5)       | macro-F1                        | 0.1789     |
-| Behavior Config 5 (combined)         | macro-F1                        | **0.7537** |
+| Stage                                       | Metric                          | v1         | v2 (RF-DETR tracks) |
+| ------------------------------------------- | ------------------------------- | ---------- | ------------------- |
+| Detection                                   | mAP@50 (combined, cross-domain) | 70.4%      | —                   |
+| Tracking                                    | IDF1                            | 67.31%     | —                   |
+| Tracking                                    | MOTA                            | 36.61%     | —                   |
+| Behavior Config 1 (CBVD-5 in-domain)        | macro-F1                        | 0.3149     | **0.4511**          |
+| Behavior Config 2 (CVB in-domain)           | macro-F1                        | 0.7607     | **0.7770**          |
+| Behavior Config 3 (CBVD-5→CVB cross-domain) | macro-F1                        | 0.1690     | **0.1722**          |
+| Behavior Config 4 (CVB→CBVD-5 cross-domain) | macro-F1                        | 0.1789     | **0.2253**          |
+| Behavior Config 5 (combined)                | macro-F1                        | **0.7537** | 0.7507              |
 
+v2 models trained on RF-DETR-tracked tubelets (no SAM2 segmentation in tracking loop).
 Full per-class breakdown in `results/behavior/f1_per_class.csv`.
 
 ## 8. Common Gotchas
