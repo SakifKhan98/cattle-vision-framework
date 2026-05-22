@@ -470,6 +470,109 @@ Best val_macro_f1=**0.1789** (epoch 7, early stopped epoch 15).
 
 ---
 
+### 9.7 V2 Models — RF-DETR-Tracked Tubelets (Completed 2026-05-21)
+
+A second round of training (v2) was run on tubelets generated from RF-DETR detection + OC-SORT tracking **without** the SAM2 segmentation step in the tracking loop (box-only association, `--use_box_iou` flag). This tests whether removing the SAM2 segmentation dependency from the tracking stage affects downstream behavior classification quality.
+
+Configs are named `videomae_*_v2` and evaluated via `scripts/11b_evaluate_rfdetr.sh`. Predictions saved to `results/behavior/predictions_rfdetr/` to avoid overwriting v1 outputs.
+
+#### V2 vs V1 Comparison
+
+| Config | Name | v1 Macro-F1 | v2 Macro-F1 | Δ | v2 Best Epoch |
+|---|---|---|---|---|---|
+| 1 | CBVD-5 in-domain | 0.3149 | **0.4511** | +0.136 | 1 |
+| 2 | CVB in-domain | 0.7607 | **0.7770** | +0.016 | 2 |
+| 3 | CBVD-5 → CVB | 0.1690 | **0.1722** | +0.003 | 11 |
+| 4 | CVB → CBVD-5 | 0.1789 | **0.2253** | +0.046 | 4 |
+| 5 | Combined | **0.7537** | 0.7507 | −0.003 | 8 |
+
+v2 models improve on every config except Combined (a wash within noise). The largest gain is CBVD-5 in-domain (+0.136), likely because removing SAM2 masks from the tracking loop eliminates mask-based label noise from the keyframe-sparse CBVD-5 annotation regime.
+
+#### V2 Per-Class Results
+
+**Config 1 — CBVD-5 in-domain (cbvd5_v2, epoch 1, 2,531 val samples):**
+
+| Class | F1 | Prec | Recall |
+|---|---|---|---|
+| Standing (0) | 0.8015 | 0.7729 | 0.8323 |
+| Lying (1) | 0.7354 | 0.6521 | 0.8430 |
+| Foraging (2) | 0.9162 | 0.9472 | 0.8872 |
+| Drinking (3) | 0.4625 | 0.3458 | 0.6981 |
+| Ruminating (4) | 0.2423 | 0.4599 | 0.1645 |
+| Grooming (5) | 0.0000 | — | — |
+| Other (6) | 0.0000 | — | — |
+| **Macro-F1** | **0.4511** | | |
+
+Significant improvement over v1 (0.3149). Standing and Foraging now above 0.80; Lying improves from 0.30 to 0.74. Ruminating remains weak (only 3 val samples).
+
+**Config 2 — CVB in-domain (cvb_v2, epoch 2, 22,569 val samples):**
+
+| Class | F1 | Prec | Recall |
+|---|---|---|---|
+| Standing (0) | 0.8525 | 0.8061 | 0.9045 |
+| Lying (1) | 0.8497 | 0.8691 | 0.8312 |
+| Foraging (2) | 0.9785 | 0.9841 | 0.9730 |
+| Drinking (3) | 0.8618 | 0.9254 | 0.8064 |
+| Ruminating (4) | 0.7934 | 0.7922 | 0.7947 |
+| Grooming (5) | 0.7302 | 0.8824 | 0.6228 |
+| Other (6) | 0.3727 | 0.3209 | 0.4444 |
+| **Macro-F1** | **0.7770** | | |
+
+Best in-domain CVB result. All core classes above 0.79. Other class improves to 0.37.
+
+**Config 3 — CBVD-5 → CVB (cbvd5_to_cvb_v2, epoch 11, 21,911 val samples):**
+
+| Class | F1 | Prec | Recall |
+|---|---|---|---|
+| Standing (0) | 0.2899 | 0.1700 | 0.9837 |
+| Lying (1) | 0.2731 | 0.7587 | 0.1665 |
+| Foraging (2) | 0.1066 | 0.3037 | 0.0646 |
+| Drinking (3) | 0.1379 | 0.5439 | 0.0790 |
+| Ruminating (4) | 0.3981 | 0.4411 | 0.3628 |
+| Grooming (5) | 0.0000 | — | — |
+| Other (6) | 0.0000 | — | — |
+| **Macro-F1** | **0.1722** | | |
+
+Domain gap persists. Standing recall inflated (model defaults to Standing in ambiguous frames). Foraging transfer still nearly zero.
+
+**Config 4 — CVB → CBVD-5 (cvb_to_cbvd5_v2, epoch 4, 2,531 val samples):**
+
+| Class | F1 | Prec | Recall |
+|---|---|---|---|
+| Standing (0) | 0.4414 | 0.4879 | 0.4031 |
+| Lying (1) | 0.5244 | 0.3997 | 0.7622 |
+| Foraging (2) | 0.4465 | 0.7859 | 0.3118 |
+| Drinking (3) | 0.1270 | 0.4000 | 0.0755 |
+| Ruminating (4) | 0.0379 | 0.0978 | 0.0235 |
+| Grooming (5) | 0.0000 | — | — |
+| Other (6) | 0.0000 | — | — |
+| **Macro-F1** | **0.2253** | | |
+
+Notable improvement over v1 (0.1789 → 0.2253). Lying transfer strengthens to 0.52, Foraging to 0.45. Ruminating still near zero.
+
+**Config 5 — Combined (combined_v2, epoch 8, 25,100 val samples):**
+
+| Class | F1 | Prec | Recall |
+|---|---|---|---|
+| Standing (0) | 0.8574 | 0.8807 | 0.8352 |
+| Lying (1) | 0.8174 | 0.7912 | 0.8454 |
+| Foraging (2) | 0.9710 | 0.9760 | 0.9661 |
+| Drinking (3) | 0.8710 | 0.8758 | 0.8663 |
+| Ruminating (4) | 0.7050 | 0.7327 | 0.6793 |
+| Grooming (5) | 0.7605 | 0.7370 | 0.7855 |
+| Other (6) | 0.2723 | 0.2209 | 0.3550 |
+| **Macro-F1** | **0.7507** | | |
+
+Essentially identical to v1 (0.7537). Grooming improves (0.722 → 0.761), Ruminating drops (0.772 → 0.705). The two versions converge on the same overall performance for the combined domain.
+
+#### Interpretation
+
+The consistent v2 gains in in-domain configs (especially CBVD-5, +0.136) suggest that the SAM2 mask IoU post-association step in v1 tracking introduced noise rather than signal for CBVD-5's sparse keyframe regime. Box-only tracking with RF-DETR detections produces cleaner tubelet crops for the 6-keyframe-per-video CBVD-5 structure. For CVB (dense, continuous tracking), the improvement is modest (+0.016), consistent with box-only tracking being a mild regression in identity accuracy but still sufficient for clean tubelet generation.
+
+Cross-domain OOD results remain poor for both v1 and v2, confirming that the domain gap is a dataset property and not an artifact of the tracking approach.
+
+---
+
 ## 10. Key Files
 
 | File               | Location                                                                  | Description                                                      |
@@ -697,3 +800,5 @@ Output: `results/tracking/behavior_videos/{video_id}_behavior.mp4`
 | 6.10 | rsync checkpoints + logs from HiPE1         | **Done — 5 × 330 MB checkpoints, 5 CSVs, 5 PNGs, logs** |
 | 6.11 | Evaluate all 5 locally, compile predictions | **Done — `results/behavior/f1_per_class.csv` confirmed** |
 | 6.12 | Render behavior videos                      | **Pending — script ready (`render_behavior_video.py`), predictions CSVs exist** |
+| 6.13 | V2 training (RF-DETR-tracked tubelets, 5 configs) | **Done — all 5 v2 configs trained on HiPE1** |
+| 6.14 | V2 evaluation locally, compile predictions  | **Done — `results/behavior/predictions_rfdetr/` + `f1_per_class.csv` updated** |

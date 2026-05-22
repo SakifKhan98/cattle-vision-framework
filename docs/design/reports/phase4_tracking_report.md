@@ -290,3 +290,15 @@ The `mask_rle` field in the tracking JSON is not used by Phase 5 directly (Phase
 - [x] Summary CSVs saved to `data/processed/tracking_v2/`
 - [x] Results JSON saved to `results/tracking/tracking_summary_all.json`
 - [x] Track visualization grids saved to `results/tracking/visualizations/`
+
+---
+
+## 15. Note on V2 Tracking Path
+
+A second tracking variant was run in parallel with Phase 6 v2 training. This path uses RF-DETR detection + OC-SORT with **box-only association** (`--use_box_iou` flag in `src/tracking/track.py`), bypassing the SAM2 mask IoU post-recovery step entirely. No `mask_rle` fields are populated in the output tracking JSONs.
+
+This box-only variant was used to generate v2 tubelets for `configs/behavior/videomae_*_v2.yaml`. The motivation was to test whether removing the SAM2 dependency from the tracking loop (reducing the pipeline to RF-DETR + OC-SORT only) degrades downstream behavior classification.
+
+**Result:** v2 behavior classification matched or improved on all configs (see Phase 6 §9.7), with the largest gains in CBVD-5 in-domain (+0.136 macro-F1). The SAM2 mask association step in the original tracking path appears to introduce noise for CBVD-5's sparse keyframe annotation regime rather than improving track quality.
+
+The box-only tracking path does not have a separate IDF1/MOTA evaluation — the metrics in §7 (IDF1=67.31%, MOTA=36.61%) remain the definitive tracking results for this pipeline (mask IoU path, CVB only).

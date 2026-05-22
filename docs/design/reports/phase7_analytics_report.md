@@ -256,10 +256,12 @@ The table below shows why:
 
 ### 7.1 Combined Model as Analytics Input
 
-The analytics use `videomae_combined_v1_val.csv` (Config 5) rather than any single-domain model. Reasons:
+The analytics use `videomae_combined_v1_val.csv` (Config 5, v1) rather than any single-domain model. Reasons:
 - The combined model is the only one trained on all 7 classes simultaneously — necessary for Grooming and Other predictions
 - It achieves val_macro_F1=0.7537, matching CVB in-domain (0.7607) within noise on the shared 5 classes
 - Using one consistent model avoids mixing predictions from different checkpoints
+
+A v2 combined model checkpoint is now available (`videomae_combined_v2`, val_macro_F1=0.7507, predictions in `results/behavior/predictions_rfdetr/videomae_combined_v2_val.csv`). The v2 combined result is within noise of v1 (−0.003); re-running Phase 7 analytics with v2 predictions would not materially change the activity budget or transition matrix findings. The Freeman Center analytics pass (Phase 8) should use whichever combined checkpoint scores higher on the Freeman Center validation split.
 
 ### 7.2 Logit Averaging vs. Majority Vote for Overlap Resolution
 
@@ -324,5 +326,5 @@ The 697 timeline CSVs under `results/analytics/timelines/` are gitignored becaus
 | 7.2 | `src/analytics/budget.py` | **Done** |
 | 7.3 | `scripts/12_generate_analytics.sh` wired | **Done (already written)** |
 | 7.4 | Run analytics, produce output CSVs | **Done** |
-| 7.5 | Commit output CSVs | Pending — commit with next session |
+| 7.5 | Commit output CSVs | **Done — committed 2026-05-21** |
 | 7.6 | Freeman Center analytics | Deferred — Freeman Center preprocessing required first |

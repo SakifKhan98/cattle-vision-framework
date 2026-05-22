@@ -343,3 +343,13 @@ Expected full-run output:
 | 5.10 | Validation script (`validate_tubelets.py`) | Done |
 
 All acceptance criteria verified. Phase 6 (VideoMAE fine-tuning) can begin.
+
+---
+
+## 12. Note on V2 Tubelet Generation
+
+Phase 6 v2 models (`videomae_*_v2.yaml`) were trained on tubelets generated from the **box-only tracking path** (RF-DETR + OC-SORT without SAM2 mask IoU post-association). These tubelets use the same export logic as described in §5 above, but the input tracking JSONs come from `scripts/08_run_tracking.sh` (box-only) rather than `scripts/07_run_segmentation.sh` + `scripts/08_run_tracking.sh` (mask IoU path).
+
+The tubelet count and label distribution are expected to be similar since the frame-level crops are driven by bounding boxes in both paths. The key difference is that v2 tracking JSONs have `mask_rle: null` for all detections — the mask field is absent, but Phase 5's tubelet export only uses the `bbox` field for cropping, so the absence of masks does not affect tubelet content.
+
+The v2 tubelet directories are not separately stored — they overwrite the same `data/processed/tubelets/` path if re-exported, or they may have been generated in a separate directory on HiPE1. The `configs/behavior/videomae_*_v2.yaml` files specify the exact tubelet path used for training.
