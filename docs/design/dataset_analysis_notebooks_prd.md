@@ -56,15 +56,15 @@ All notebooks live in `notebooks/`. Each per-dataset notebook is independently r
 
 All analysis notebooks live in `notebooks/dataset_analysis/` (separate from the numbered pipeline notebooks in `notebooks/`).
 
-| Notebook | Dataset |
-| --- | --- |
-| `notebooks/dataset_analysis/analysis_cbvd5.ipynb` | CBVD-5 |
-| `notebooks/dataset_analysis/analysis_cvb.ipynb` | CVB |
-| `notebooks/dataset_analysis/analysis_freeman.ipynb` | Freeman Center |
-| `notebooks/dataset_analysis/analysis_cows2021.ipynb` | Cows2021 |
-| `notebooks/dataset_analysis/analysis_opencows2020.ipynb` | OpenCows2020 |
-| `notebooks/dataset_analysis/analysis_cattleeyeview.ipynb` | CattleEyeView |
-| `notebooks/dataset_analysis/dataset_comparison.ipynb` | Cross-dataset comparison |
+| Notebook                                                  | Dataset                  |
+| --------------------------------------------------------- | ------------------------ |
+| `notebooks/dataset_analysis/analysis_cbvd5.ipynb`         | CBVD-5                   |
+| `notebooks/dataset_analysis/analysis_cvb.ipynb`           | CVB                      |
+| `notebooks/dataset_analysis/analysis_freeman.ipynb`       | Freeman Center           |
+| `notebooks/dataset_analysis/analysis_cows2021.ipynb`      | Cows2021                 |
+| `notebooks/dataset_analysis/analysis_opencows2020.ipynb`  | OpenCows2020             |
+| `notebooks/dataset_analysis/analysis_cattleeyeview.ipynb` | CattleEyeView            |
+| `notebooks/dataset_analysis/dataset_comparison.ipynb`     | Cross-dataset comparison |
 
 ### Standard 8-section structure (all per-dataset notebooks)
 
