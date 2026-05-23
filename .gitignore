@@ -41,6 +41,9 @@ results/segmentation/viz/
 *.docx
 docs/**/*.pdf
 
+# Dataset paper markdown conversions (local reference only, not committed)
+docs/dataset-papers/*.md
+
 # Notebook outputs
 notebooks/.ipynb_checkpoints/
 

@@ -72,9 +72,21 @@
 
 ### Notebook types
 
-**Per-dataset analysis notebook** — One notebook per dataset (`notebooks/analysis_{dataset}.ipynb`). Contains: dataset provenance, data inventory, annotation analysis, resolution/quality, label mapping to 7-class taxonomy, preprocessing gap analysis. Independently runnable. Thesis-citeable.
+**Per-dataset analysis notebook** — One notebook per dataset (`notebooks/analysis_{dataset}.ipynb`). Re-derives all stats from raw data (never from pipeline outputs). Independently runnable. Thesis-citeable. Standard 8-section structure:
+1. Dataset Overview — origin, paper citation, license, intended use
+2. Data Inventory — file counts, splits, video vs. image format
+3. Sample Image Visualization — representative frames from the dataset
+4. Annotation Format — raw format walkthrough, parse one sample annotation
+5. Class Distribution — label counts/frequencies, bar chart (for detection-only datasets: detection box counts per split)
+6. Resolution & Quality — frame dimensions, fps, missing/corrupt file check
+7. Label Mapping to 7-class Taxonomy — explicit mapping table (for detection-only datasets: "Evaluation Scope" statement instead)
+8. Preprocessing Gap Analysis — what must happen before dataset enters the pipeline
 
-**Dataset comparison notebook** — `notebooks/dataset_comparison.ipynb`. Imports summary stats from per-dataset notebooks, produces cross-dataset comparative figures for the thesis.
+Each notebook saves `results/analysis/{dataset}_summary.json` with fields: `dataset`, `total_images_or_frames`, `total_annotations`, `splits`, `class_distribution`, `resolution`, `has_behavior_labels`, `evaluation_scope`.
+
+Creation order: CBVD-5 → CVB → Freeman Center → Cows2021 → OpenCows2020 → CattleEyeView.
+
+**Dataset comparison notebook** — `notebooks/dataset_comparison.ipynb`. Reads all 6 `results/analysis/{dataset}_summary.json` files and produces: side-by-side class distribution figure, dataset scale comparison (annotation counts), evaluation scope summary table.
 
 ### Script naming convention
 
