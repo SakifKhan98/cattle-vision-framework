@@ -94,6 +94,20 @@ Creation order: CBVD-5 → CVB → Freeman Center → Cows2021 → OpenCows2020 
 
 **`XXb_*.sh`** — RF-DETR-Seg parallel pipeline scripts (Phase 3b re-run). Use `_rfdetr` data directories, never overwrite SAM2 outputs.
 
+### Inference tool
+
+**Inference Pipeline** — The end-to-end pipeline for arbitrary input video: RF-DETR-Seg (detection + segmentation) → OC-SORT (tracking) → tubelet generation → VideoMAE (behavior classification) → analytics. Implemented in `src/inference/pipeline.py`, shared by both the CLI and the API.
+
+**Inference Job** — A single run of the Inference Pipeline on one video file. Identified by a `job_id` (UUID). Intermediate outputs stored under `results/inference/{job_id}/`. Configurable via `configs/inference/default.yaml`.
+
+**Behavioral Dashboard** — The local web UI for non-technical researchers (animal care scientists). A FastAPI backend serves a pre-built React frontend on a single port (`localhost:8000`). Accepts a video upload, runs an Inference Job, streams stage-level progress via SSE, and displays: annotated video player, behavioral timeline strip, activity budget chart, outlier alert table, and CSV download links.
+
+**Annotated Video** — Post-processed output video with filled instance masks, stable track IDs, and per-animal behavior labels overlaid on every frame. Rendered in a second pass after the full pipeline completes so all labels are known before rendering begins.
+
+**Behavioral Timeline Strip** — A Gantt-style chart with one row per tracked animal and colored time blocks representing predicted behavior segments. The primary visualization in the Behavioral Dashboard. Derived from per-animal timeline CSVs produced by `src/analytics/timeline.py`.
+
+**Outlier Alert** — A per-animal flag indicating that the animal's activity budget deviates from the herd median by more than one IQR. Computed by `src/analytics/budget.py`, surfaced in the Behavioral Dashboard as a red/green table. Primary welfare signal for animal care researchers.
+
 ## Open decisions
 
 - **Freeman Center "normal" class mapping** — defer until `notebooks/analysis_freeman.ipynb` class distribution is complete. Options: map to Standing (0) or drop from evaluation.
