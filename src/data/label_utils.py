@@ -1,4 +1,4 @@
-"""Label mapping utilities for CVB and CBVD-5 datasets."""
+"""Label mapping utilities for CVB, CBVD-5, and Freeman Center datasets."""
 
 LABEL_NAMES = {
     0: "Standing",
@@ -38,6 +38,21 @@ _CBVD5_ACTION_MAP = {
 
 _CBVD5_PRIORITY = [1, 2, 5, 3, 4]  # ascending priority (last = highest)
 
+# Freeman Center (CMB 2024) — 9-class YOLO taxonomy → canonical 7-class IDs.
+# 'normal' (2) resolved to Standing (0): upright alert posture with no active behavior.
+# Classes 3,5,7,8 map to Other (6); no Lying or Drinking in this dataset.
+_FREEMAN_LABEL_MAP = {
+    0: 2,     # hay feeding   → Foraging/Grazing
+    1: 2,     # grazing       → Foraging/Grazing
+    2: 0,     # normal        → Standing  (RESOLVED: Option A)
+    3: 6,     # dominance assertion → Other
+    4: 4,     # ruminating    → Ruminating
+    5: 6,     # fear response → Other
+    6: 5,     # grooming      → Grooming
+    7: 6,     # vocalizing    → Other
+    8: 6,     # sniffing      → Other
+}
+
 
 def cvb_behavior_to_label(behavior_str: str) -> int | None:
     """Map CVB behavior string to canonical label ID. Returns None for SKIP behaviors."""
@@ -59,6 +74,13 @@ def cbvd5_actions_to_label(action_ids: list[int]) -> int:
     if best is None:
         raise ValueError(f"No known action IDs in: {action_ids}")
     return _CBVD5_ACTION_MAP[best]
+
+
+def freeman_label_to_canonical(freeman_id: int) -> int:
+    """Map a Freeman Center class ID (0–8) to the canonical 7-class label ID."""
+    if freeman_id not in _FREEMAN_LABEL_MAP:
+        raise ValueError(f"Unknown Freeman class ID: {freeman_id}")
+    return _FREEMAN_LABEL_MAP[freeman_id]
 
 
 def bbox_iou(box_a: list[float], box_b: list[float]) -> float:
