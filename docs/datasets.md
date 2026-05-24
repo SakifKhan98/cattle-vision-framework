@@ -190,17 +190,124 @@ data/processed/tubelets/
 
 ---
 
-## 5. Phase 7 Additional Datasets
+## 5. Phase 8 Additional Datasets (OOD Evaluation)
 
-Additional cattle surveillance datasets will be integrated in Phase 7 for analytics.
-When a new dataset is added:
+These datasets are used exclusively for out-of-distribution (OOD) evaluation of the
+trained RF-DETR detector and RF-DETR-Seg model. They are **not** used for training.
 
-1. Add a download section to this file (follow the CBVD-5/CVB template above)
-2. Add a `scripts/0X_prepare_{dataset}.sh` script
-3. Map the dataset's behavior strings to label IDs in `data/label_map.json`
-4. Add a config in `configs/behavior/` if used for training
+---
 
-Placeholder: `data/raw/[future_datasets]/`
+### 5.1 OpenCows2020
+
+| Property          | Value                                                      |
+| ----------------- | ---------------------------------------------------------- |
+| Source            | University of Bristol — outdoor farm, top-down cameras     |
+| Images            | 7,039 (single test split — full dataset used as OOD eval)  |
+| Annotations       | Bounding boxes (Supervisely JSON format)                   |
+| Eval result       | `results/detection/opencows2020_eval.json` — mAP@50=33.3%  |
+| Paper             | Andrew et al., 2021 (OpenCows2020)                         |
+
+#### Download
+
+```
+# From Zenodo or the official OpenCows2020 repo; place at:
+data/raw/opencows2020/
+├── ann/      ← Supervisely JSON annotation files (*.jpg.json)
+└── img/      ← JPEG images
+```
+
+#### Convert
+
+```bash
+python3 src/data/convert_opencows2020.py
+# Output: data/processed/detection/opencows2020/_annotations.coco.json
+```
+
+---
+
+### 5.2 Cows2021
+
+| Property          | Value                                                          |
+| ----------------- | -------------------------------------------------------------- |
+| Source            | University of Bristol — indoor barn, top-down surveillance     |
+| Images (test)     | 2,131 (test split used for OOD eval)                          |
+| Annotations       | Bounding boxes (Supervisely JSON format, detection only)       |
+| Eval result       | `results/detection/cows2021_eval.json` — mAP@50=27.3%         |
+| Note              | No track IDs in annotations — tracking eval (IDF1) not possible |
+
+#### Download
+
+```
+# From https://github.com/AnimalEyeQ/Cows2021 or DatasetNinja; place at:
+data/raw/cows2021/
+├── detection_and_localisation-train/
+│   ├── ann/   ← *.jpg.json Supervisely annotations
+│   └── img/   ← JPEG images
+├── detection_and_localisation-val/
+└── detection_and_localisation-test/
+```
+
+#### Convert
+
+```bash
+python3 src/data/convert_cows2021.py          # test split only (default)
+python3 src/data/convert_cows2021.py --all_splits   # all three splits
+# Output: data/processed/detection/cows2021/test/_annotations.coco.json
+```
+
+---
+
+### 5.3 CattleEyeView
+
+| Property          | Value                                                                      |
+| ----------------- | -------------------------------------------------------------------------- |
+| Source            | Singapore University of Technology and Design + AnimalEyeQ                |
+| Videos            | 14 (top-down outdoor, 1920×1080)                                          |
+| Images (test)     | 2,490 across 5 test videos                                                 |
+| Annotations       | YOLO-format bounding boxes + polygon instance masks                        |
+| Eval result       | `results/detection/cattleeyeview_eval.json` — mAP@50=47.0%                |
+|                   | `results/segmentation/cattleeyeview_maskiou.json` — Mask IoU               |
+| Paper             | Ong et al., 2023 (VCIP) — doi:10.1109/VCIP59821.2023.10402676             |
+| Note              | No track IDs in annotations — tracking eval (IDF1) not possible           |
+
+#### Download
+
+```
+# From https://github.com/AnimalEyeQ/CattleEyeView (follow repo instructions); place at:
+data/raw/cattle-eye-view/
+├── dataset/
+│   ├── detect/
+│   │   ├── images/{train,val,test}/{video_id}/*.jpg
+│   │   └── labels/{train,val,test}/{video_id}/*.txt   ← YOLO bbox
+│   └── segment/
+│       └── labels/{train,val,test}/{video_id}/*.txt   ← YOLO polygon mask
+└── README.md
+```
+
+#### Convert
+
+```bash
+python3 src/data/convert_cattleeyeview.py     # test split only (default)
+# Output: data/processed/detection/cattleeyeview/test/_annotations.coco.json
+#         (includes both bbox and polygon segmentation annotations)
+```
+
+#### Evaluate
+
+```bash
+# Detection mAP
+python3 src/tools/eval_detection_ood.py \
+    --checkpoint runs/detection/rfdetr_combined_v1/checkpoint_best_total.pth \
+    --dataset_dir data/processed/detection/cattleeyeview/test \
+    --output results/detection/cattleeyeview_eval.json \
+    --dataset_name cattleeyeview
+
+# Mask IoU (RF-DETR-Seg)
+python3 src/tools/eval_maskiou_ood.py \
+    --checkpoint runs/seg_medium_lr5e5/checkpoint_best_ema.pth \
+    --dataset_dir data/processed/detection/cattleeyeview/test \
+    --output results/segmentation/cattleeyeview_maskiou.json
+```
 
 ---
 

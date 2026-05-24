@@ -1,0 +1,23 @@
+{
+  "dataset": "cattleeyeview",
+  "checkpoint": "runs/seg_medium_lr5e5/checkpoint_best_ema.pth",
+  "threshold": 0.3,
+  "n_images": 2490,
+  "n_detections": 7930,
+  "box_mAP": 0.3699,
+  "box_mAP50": 0.5362,
+  "box_mAP75": 0.3779,
+  "box_AR100": 0.5439,
+  "mean_mask_iou": 0.8653,
+  "n_gt_instances": 6740,
+  "n_matched": 4657,
+  "n_no_pred_match": 2082,
+  "n_no_gt_mask": 1,
+  "box_iou_threshold": 0.5,
+  "iou_histogram": {
+    "p25": 0.8321,
+    "p50": 0.9185,
+    "p75": 0.942,
+    "p90": 0.9526
+  }
+}
