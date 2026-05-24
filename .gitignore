@@ -47,6 +47,10 @@ docs/dataset-papers/*.md
 # Notebook outputs
 notebooks/.ipynb_checkpoints/
 
+# Frontend build artifacts
+ui/dist/
+ui/node_modules/
+
 # IDE
 .vscode/
 .idea/
