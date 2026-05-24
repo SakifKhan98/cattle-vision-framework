@@ -121,6 +121,50 @@ def frame_results_from_detections(detections) -> list:
     return results
 
 
+def frame_results_xyxy(detections) -> list:
+    """Like frame_results_from_detections but bbox is [x1,y1,x2,y2] (xyxy)."""
+    results = []
+    if detections is None:
+        return results
+
+    boxes = detections.xyxy
+    scores = detections.confidence
+    masks = getattr(detections, "mask", None)
+
+    for i in range(len(boxes)):
+        x1, y1, x2, y2 = boxes[i]
+        r = {
+            "bbox": [round(float(x1), 1), round(float(y1), 1),
+                     round(float(x2), 1), round(float(y2), 1)],
+            "score": round(float(scores[i]), 4),
+        }
+        if masks is not None and i < len(masks):
+            binary_mask = masks[i].astype(bool)
+            r["mask_rle"] = mask_to_rle(binary_mask)
+            r["mask_area"] = mask_area(binary_mask)
+        else:
+            r["mask_rle"] = None
+            r["mask_area"] = 0
+        results.append(r)
+
+    return results
+
+
+def predict_frame(model, frame_bgr: np.ndarray, score_threshold: float) -> list:
+    """Run RF-DETR-Seg inference on a single BGR numpy frame.
+
+    Accepts the frame in memory — no temp file is written.
+    Returns a list of detection dicts with xyxy bboxes, scores, and mask RLEs.
+    """
+    from PIL import Image
+    import cv2 as _cv2
+
+    frame_rgb = _cv2.cvtColor(frame_bgr, _cv2.COLOR_BGR2RGB)
+    pil_image = Image.fromarray(frame_rgb)
+    detections = model.predict(pil_image, threshold=score_threshold)
+    return frame_results_xyxy(detections)
+
+
 def enumerate_cbvd5_frames(frames_dir: Path):
     video_frames = {}
     for img_path in sorted(frames_dir.glob("*.jpg")):
