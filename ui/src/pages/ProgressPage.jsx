@@ -2,13 +2,23 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 
 const STAGE_NAMES = {
-  1: 'Ingest',
-  2: 'Detect',
-  3: 'Track',
-  4: 'Extract',
-  5: 'Classify',
-  6: 'Analyze',
-  7: 'Render',
+  1: 'Ingest', 2: 'Detect', 3: 'Track',
+  4: 'Extract', 5: 'Classify', 6: 'Analyze', 7: 'Render',
+}
+
+function ProgressBar({ value, max }) {
+  const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0
+  return (
+    <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+      <div
+        className="h-full bg-blue-500 rounded-full transition-all duration-300"
+        style={{ width: `${pct}%` }}
+        role="progressbar"
+        aria-valuenow={value}
+        aria-valuemax={max}
+      />
+    </div>
+  )
 }
 
 export default function ProgressPage() {
@@ -16,7 +26,7 @@ export default function ProgressPage() {
   const navigate = useNavigate()
   const esRef = useRef(null)
 
-  const [event, setEvent] = useState(null)  // last progress event
+  const [event, setEvent] = useState(null)
   const [failed, setFailed] = useState(null)
 
   useEffect(() => {
@@ -54,65 +64,44 @@ export default function ProgressPage() {
   const frame = event?.frame ?? 0
   const totalFrames = event?.total_frames ?? 0
 
-  const stageProgress = totalStages > 0 ? (stageNum / totalStages) * 100 : 0
-  const frameProgress = totalFrames > 0 ? (frame / totalFrames) * 100 : 0
-
   if (failed) {
     return (
-      <div className="page">
-        <h1>Job failed</h1>
-        <div className="error-box">{failed}</div>
-        <Link to="/"><button className="btn-secondary">Back to upload</button></Link>
+      <div className="max-w-xl mx-auto px-4 py-10">
+        <h1 className="text-2xl font-semibold mb-4">Job failed</h1>
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-6 text-sm break-words">
+          {failed}
+        </div>
+        <Link to="/">
+          <button className="bg-gray-200 text-gray-700 font-semibold px-5 py-2.5 rounded-lg hover:bg-gray-300 transition-colors">
+            Back to upload
+          </button>
+        </Link>
       </div>
     )
   }
 
   return (
-    <div className="page">
-      <h1>Running inference…</h1>
-      <p style={{ fontSize: '0.82rem', color: '#888', marginBottom: '1.25rem' }}>
-        Job: {jobId}
-      </p>
+    <div className="max-w-xl mx-auto px-4 py-10">
+      <h1 className="text-2xl font-semibold mb-1">Running inference…</h1>
+      <p className="text-xs text-gray-400 mb-8 font-mono">{jobId}</p>
 
-      <div className="progress-card">
-        <div className="stage-label">
+      <div className="bg-white rounded-xl border border-gray-100 p-5 mb-4 space-y-2">
+        <p className="text-sm text-gray-500">
           {stageNum > 0
             ? `Stage ${stageNum} / ${totalStages}: ${stageName}`
             : 'Starting…'}
-        </div>
-        <div className="progress-bar-track">
-          <div
-            className="progress-bar-fill"
-            style={{ width: `${stageProgress}%` }}
-            role="progressbar"
-            aria-valuenow={stageNum}
-            aria-valuemax={totalStages}
-          />
-        </div>
-        <div className="frame-count">
+        </p>
+        <ProgressBar value={stageNum} max={totalStages} />
+      </div>
+
+      <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-2">
+        <p className="text-sm text-gray-500">
           {totalFrames > 0
             ? `Frame ${frame.toLocaleString()} / ${totalFrames.toLocaleString()}`
             : 'Waiting for first event…'}
-        </div>
+        </p>
+        <ProgressBar value={frame} max={totalFrames} />
       </div>
-
-      {totalFrames > 0 && (
-        <div className="progress-card">
-          <div className="stage-label">Frame progress</div>
-          <div className="progress-bar-track">
-            <div
-              className="progress-bar-fill"
-              style={{ width: `${frameProgress}%` }}
-              role="progressbar"
-              aria-valuenow={frame}
-              aria-valuemax={totalFrames}
-            />
-          </div>
-          <div className="frame-count">
-            {Math.round(frameProgress)}%
-          </div>
-        </div>
-      )}
     </div>
   )
 }
