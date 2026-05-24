@@ -90,8 +90,32 @@ def run_pipeline(config: Dict[str, Any], progress: ProgressCallback = _noop_call
 
     _emit(progress, 2, "Detect", total_frames, total_frames, "done")
 
-    # Stages 3–7 will be wired in subsequent slices.
+    # ── Stage 3: Track ───────────────────────────────────────────────────────
+    from src.tracking.track import run_tracking
+
+    ocsort_cfg = config.get("tracking", {})
+
+    _emit(progress, 3, "Track", 0, total_frames, "running")
+
+    def _on_frame(frame_idx: int, total: int) -> None:
+        _emit(progress, 3, "Track", frame_idx, total, "running")
+
+    tracks = run_tracking(
+        detections_out["frames"],
+        img_h=ingestor.height,
+        img_w=ingestor.width,
+        ocsort_cfg=ocsort_cfg,
+        on_frame=_on_frame,
+    )
+    tracks["video_id"] = job_id
+
+    tracks_path = output_root / "tracks.json"
+    with open(tracks_path, "w") as f:
+        json.dump(tracks, f)
+
+    _emit(progress, 3, "Track", total_frames, total_frames, "done")
+
+    # Stages 4–7 will be wired in subsequent slices.
 
     if config["output"].get("cleanup"):
-        # Nothing to clean up yet — detection JSON is a primary output.
-        pass
+        pass  # primary outputs (detections.json, tracks.json) are never cleaned

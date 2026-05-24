@@ -8,6 +8,16 @@ from pathlib import Path
 
 import yaml
 
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+_OCSORT_ROOT = _REPO_ROOT / "third_party" / "OC_SORT"
+
+
+def _check_dependencies() -> None:
+    if not _OCSORT_ROOT.exists():
+        print("[ERROR] OC-SORT not found. Clone it with:")
+        print(f"  git clone https://github.com/noahcao/OC_SORT.git {_OCSORT_ROOT}")
+        sys.exit(1)
+
 
 def _load_config(config_path: str) -> dict:
     with open(config_path) as f:
@@ -88,6 +98,8 @@ def parse_args(argv=None) -> argparse.Namespace:
 
 
 def main(argv=None) -> None:
+    _check_dependencies()
+
     args = parse_args(argv)
 
     config = _load_config(args.config)

@@ -330,7 +330,118 @@ def track_video(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 5.  Main — loop over all videos in a dataset
+# 5.  Reusable per-video callable (Phase 9 inference pipeline)
+# ══════════════════════════════════════════════════════════════════════════════
+
+_DEFAULT_OCSORT_CFG = {
+    "det_thresh": 0.3,
+    "max_age": 30,
+    "min_hits": 3,
+    "iou_threshold": 0.3,
+    "delta_t": 3,
+    "inertia": 0.2,
+}
+
+
+def run_tracking(
+    frames_dict: dict,
+    img_h: int,
+    img_w: int,
+    ocsort_cfg: dict | None = None,
+    use_mask_iou: bool = True,
+    on_frame=None,
+) -> dict:
+    """Run OC-SORT on a single video's per-frame detections.
+
+    Args:
+        frames_dict:  {frame_id_str -> list of det dicts}
+                      Each det: {"bbox": [x1,y1,x2,y2], "score": float,
+                                 "mask_rle": dict|None, "mask_area": int}
+                      Bboxes must be in xyxy format (as written by the
+                      inference pipeline's detections.json).
+        img_h:        Frame height in pixels (from video metadata).
+        img_w:        Frame width in pixels.
+        ocsort_cfg:   OC-SORT hyperparameters. Defaults to Phase 4 values.
+        use_mask_iou: Use mask IoU for det→track association when available.
+        on_frame:     Optional callable(frame_idx: int, total_frames: int)
+                      invoked after each frame is processed.
+
+    Returns:
+        Tracks JSON dict matching the data contract (CLAUDE.md §6):
+        {"video_id", "dataset", "frames": {...}, "stats": {...}}
+    """
+    cfg = {**_DEFAULT_OCSORT_CFG, **(ocsort_cfg or {})}
+
+    tracker = OCSort(
+        det_thresh=cfg["det_thresh"],
+        max_age=cfg["max_age"],
+        min_hits=cfg["min_hits"],
+        iou_threshold=cfg["iou_threshold"],
+        delta_t=cfg["delta_t"],
+        asso_func="iou",
+        inertia=cfg["inertia"],
+        use_byte=False,
+    )
+
+    output_frames: dict = {}
+    all_track_ids: set = set()
+    frames_with_tracks = 0
+    sorted_frame_ids = sorted(frames_dict.keys(), key=lambda k: int(k))
+    total = len(sorted_frame_ids)
+
+    for fi, frame_id in enumerate(sorted_frame_ids):
+        dets = frames_dict[frame_id]
+
+        if len(dets) == 0:
+            empty = np.empty((0, 5), dtype=np.float32)
+            tracker.update(empty, [img_h, img_w], [img_h, img_w])
+            output_frames[str(frame_id)] = []
+        else:
+            # Bboxes are already xyxy — no conversion needed.
+            det_array = np.array(
+                [d["bbox"] + [d["score"]] for d in dets],
+                dtype=np.float32,
+            )
+            track_output = tracker.update(det_array, [img_h, img_w], [img_h, img_w])
+
+            # Re-use the existing match helper (expects xywh in dets → patches here).
+            # We pass a shallow copy with xywh so match_tracks_to_dets works unchanged.
+            dets_xywh = [
+                {**d, "bbox": [d["bbox"][0], d["bbox"][1],
+                               d["bbox"][2] - d["bbox"][0],
+                               d["bbox"][3] - d["bbox"][1]]}
+                for d in dets
+            ]
+            frame_results = match_tracks_to_dets(
+                track_output, dets_xywh, use_mask_iou=use_mask_iou
+            )
+            output_frames[str(frame_id)] = frame_results
+
+            if frame_results:
+                frames_with_tracks += 1
+                for r in frame_results:
+                    all_track_ids.add(r["track_id"])
+
+        if on_frame is not None:
+            on_frame(fi + 1, total)
+
+    stats = {
+        "total_frames": total,
+        "frames_with_tracks": frames_with_tracks,
+        "total_unique_tracks": len(all_track_ids),
+        "association_mode": "mask_iou" if use_mask_iou else "box_iou",
+    }
+
+    return {
+        "video_id": "unknown",
+        "dataset": "inference",
+        "frames": output_frames,
+        "stats": stats,
+    }
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 6.  Main — loop over all videos in a dataset
 # ══════════════════════════════════════════════════════════════════════════════
 
 
