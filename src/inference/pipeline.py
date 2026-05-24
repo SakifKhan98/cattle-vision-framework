@@ -115,7 +115,73 @@ def run_pipeline(config: Dict[str, Any], progress: ProgressCallback = _noop_call
 
     _emit(progress, 3, "Track", total_frames, total_frames, "done")
 
-    # Stages 4–7 will be wired in subsequent slices.
+    # ── Stage 4: Extract Tubelets ────────────────────────────────────────────
+    from src.data.export_tubelets import export_tubelets_from_tracks
 
+    tubelets_dir = output_root / "tubelets"
+    _emit(progress, 4, "Extract", 0, total_frames, "running")
+
+    tubelet_rows = export_tubelets_from_tracks(
+        tracks, str(video_path), str(tubelets_dir),
+    )
+
+    _emit(progress, 4, "Extract", total_frames, total_frames, "done")
+
+    # ── Stage 5: Classify ────────────────────────────────────────────────────
+    from src.behavior.classify import classify_tubelets
+
+    videomae_ckpt = config["models"]["videomae_checkpoint"]
+    n_tubelets = len(tubelet_rows)
+    _emit(progress, 5, "Classify", 0, n_tubelets, "running")
+
+    def _cls_progress(n_done: int, n_total: int) -> None:
+        _emit(progress, 5, "Classify", n_done, n_total, "running")
+
+    preds_csv = classify_tubelets(
+        tubelet_rows,
+        checkpoint=videomae_ckpt,
+        output_dir=output_root,
+        job_id=job_id,
+        progress=_cls_progress,
+    )
+
+    _emit(progress, 5, "Classify", n_tubelets, n_tubelets, "done")
+
+    # ── Stage 6: Analyze ─────────────────────────────────────────────────────
+    from src.analytics.timeline import run_timeline_analysis
+    from src.analytics.budget import run_budget_analysis
+
+    timelines_dir = output_root / "timelines"
+    _emit(progress, 6, "Analyze", 0, total_frames, "running")
+
+    run_timeline_analysis(preds_csv, timelines_dir, fps=ingestor.fps)
+    run_budget_analysis(timelines_dir, output_root)
+
+    _emit(progress, 6, "Analyze", total_frames, total_frames, "done")
+
+    # ── Stage 7: Render ──────────────────────────────────────────────────────
+    from src.tracking.render_behavior_video import render_inference_video
+
+    annotated_path = output_root / "annotated.mp4"
+    _emit(progress, 7, "Render", 0, total_frames, "running")
+
+    render_inference_video(
+        video_path=video_path,
+        tracks_json=tracks,
+        predictions_csv=preds_csv,
+        output_path=annotated_path,
+        fps=ingestor.fps,
+        job_id=job_id,
+    )
+
+    _emit(progress, 7, "Render", total_frames, total_frames, "done")
+
+    # ── Cleanup ──────────────────────────────────────────────────────────────
     if config["output"].get("cleanup"):
-        pass  # primary outputs (detections.json, tracks.json) are never cleaned
+        import shutil as _shutil
+        for p in [det_path, tracks_path, preds_csv]:
+            try:
+                p.unlink()
+            except OSError:
+                pass
+        _shutil.rmtree(tubelets_dir, ignore_errors=True)

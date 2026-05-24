@@ -107,6 +107,52 @@ def build_timeline(group: pd.DataFrame, fps: float) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def run_timeline_analysis(
+    predictions_csv: "Path | str",
+    output_dir: "Path | str",
+    fps: float,
+) -> int:
+    """Build per-track behavior timelines from a single predictions CSV.
+
+    Args:
+        predictions_csv: Path to predictions.csv from classify_tubelets.
+        output_dir:      Root for timeline CSVs.
+                         Structure: {output_dir}/{dataset}/{video_id}/{track_id}.csv
+        fps:             Video FPS from the VideoIngestor header — never hardcoded.
+
+    Returns:
+        Number of timeline CSVs written.
+    """
+    import re as _re
+
+    predictions_csv = Path(predictions_csv)
+    output_dir = Path(output_dir)
+
+    df = pd.read_csv(predictions_csv)
+    if df.empty:
+        return 0
+
+    def _extract_tid(tdir: str) -> str:
+        m = _re.search(r"track_(\d+)", tdir)
+        return f"track_{m.group(1)}" if m else tdir.split("/")[-2]
+
+    df["track_id"] = df["tubelet_dir"].apply(_extract_tid)
+
+    n_written = 0
+    for (dataset, video_id, track_id), group in df.groupby(
+        ["dataset", "video_id", "track_id"], sort=False
+    ):
+        timeline = build_timeline(group, fps)
+        if timeline.empty:
+            continue
+        out_path = output_dir / str(dataset) / str(video_id) / f"{track_id}.csv"
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        timeline.to_csv(out_path, index=False)
+        n_written += 1
+
+    return n_written
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(

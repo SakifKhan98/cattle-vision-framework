@@ -28,6 +28,118 @@ def _ann_path(video_id: str) -> str | None:
     return p if os.path.isfile(p) else None
 
 
+def export_tubelets_from_tracks(
+    tracks_json: dict,
+    video_path: str,
+    output_dir: str,
+    clip_len: int = 16,
+    stride: int = 8,
+    pad: int = 20,
+) -> list:
+    """Extract tubelet clips from any video file using tracking results.
+
+    No dataset-specific paths or constants. Works with any OpenCV-readable video.
+
+    Args:
+        tracks_json: Tracks dict from run_tracking (CLAUDE.md §6 schema).
+                     bbox values must be [x1,y1,x2,y2] (xyxy).
+        video_path:  Path to the source video file.
+        output_dir:  Directory under which to write tubelet frame crops.
+                     Structure: {output_dir}/track_{id:04d}/tubelet_{idx:04d}/frame_{i:02d}.jpg
+        clip_len:    Frames per tubelet (default 16).
+        stride:      Sliding-window step size (default 8).
+        pad:         Pixel padding around crop bbox (default 20).
+
+    Returns:
+        List of dicts: {tubelet_dir, track_id, start_frame, end_frame}.
+        Tracks with fewer than clip_len frames produce no entry.
+    """
+    import shutil as _shutil
+    from pathlib import Path as _Path
+
+    frames_dict = tracks_json.get("frames", {})
+    output_dir = _Path(output_dir)
+
+    # Build per-track data structures
+    track_frames: dict = {}
+    track_bboxes: dict = {}
+    for fid_str, dets in frames_dict.items():
+        fi = int(fid_str)
+        for det in dets:
+            tid = det["track_id"]
+            track_frames.setdefault(tid, []).append(fi)
+            track_bboxes.setdefault(tid, {})[fi] = det["bbox"]
+
+    for tid in track_frames:
+        track_frames[tid].sort()
+
+    cap = cv2.VideoCapture(str(video_path))
+    if not cap.isOpened():
+        raise IOError(f"Cannot open video: {video_path}")
+
+    tubelet_rows = []
+    try:
+        for tid, frames in sorted(track_frames.items()):
+            if len(frames) < clip_len:
+                continue  # short track — no tubelet produced
+
+            frame_set = set(frames)
+            bbox_keys = sorted(track_bboxes[tid].keys())
+            min_f, max_f = frames[0], frames[-1]
+
+            tubelet_idx = 0
+            start = min_f
+            while start + clip_len <= max_f + 1:
+                window = list(range(start, start + clip_len))
+                present = sum(1 for f in window if f in frame_set)
+
+                if present >= (clip_len * 3 // 4):
+                    out_dir = output_dir / f"track_{tid:04d}" / f"tubelet_{tubelet_idx:04d}"
+                    out_dir.mkdir(parents=True, exist_ok=True)
+
+                    save_ok = True
+                    for i, fi in enumerate(window):
+                        if fi in track_bboxes[tid]:
+                            bbox = track_bboxes[tid][fi]
+                        else:
+                            nearest = min(bbox_keys, key=lambda k: abs(k - fi))
+                            bbox = track_bboxes[tid][nearest]
+
+                        cap.set(cv2.CAP_PROP_POS_FRAMES, fi)
+                        ret, frame = cap.read()
+                        if not ret or frame is None:
+                            save_ok = False
+                            break
+
+                        crop = _crop_frame(frame, bbox, pad)
+                        if crop is None or crop.size == 0:
+                            save_ok = False
+                            break
+
+                        cv2.imwrite(
+                            str(out_dir / f"frame_{i:02d}.jpg"),
+                            crop,
+                            [cv2.IMWRITE_JPEG_QUALITY, 95],
+                        )
+
+                    if save_ok:
+                        tubelet_rows.append({
+                            "tubelet_dir": str(out_dir),
+                            "track_id": tid,
+                            "start_frame": start,
+                            "end_frame": start + clip_len,
+                        })
+                        tubelet_idx += 1
+                    else:
+                        _shutil.rmtree(out_dir, ignore_errors=True)
+
+                start += stride
+    finally:
+        cap.release()
+
+    return tubelet_rows
+
+
 def _crop_frame(img: any, bbox: list[float], pad: int = 20) -> any:
     """Crop img ([H,W,C] numpy) using [x1,y1,x2,y2] bbox + padding, clamped to image bounds."""
     H, W = img.shape[:2]

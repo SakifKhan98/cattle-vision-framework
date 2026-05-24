@@ -175,11 +175,11 @@ def render_frame(img, detections, frame_labels, frame_conf, frame_id,
         x1, y1, x2, y2 = int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])
         cv2.rectangle(overlay, (x1, y1), (x2, y2), color, box_thickness)
 
-        # Label text: behavior name + confidence if available
+        # Label text: behavior name + confidence, or "Unknown" for short-track animals
         if label_id is not None:
             label_str = f"{LABEL_NAMES.get(label_id, '?')} {conf:.0%}"
         else:
-            label_str = f"ID {track_id}"
+            label_str = "Unknown"
 
         (tw, th), baseline = cv2.getTextSize(
             label_str, cv2.FONT_HERSHEY_SIMPLEX, font_scale, 2)
@@ -263,6 +263,113 @@ def find_best_video(track_dir, min_tracks=6):
         except Exception:
             continue
     return best_path
+
+
+def render_inference_video(
+    video_path,
+    tracks_json: dict,
+    predictions_csv,
+    output_path,
+    fps: float,
+    job_id: str = "inference",
+    max_dim: int = 1280,
+) -> bool:
+    """Render an annotated behavior video for a single-video inference job.
+
+    Reads frames directly from video_path — no dataset-specific frame directories.
+    Short-track animals (no predictions) are rendered with label "Unknown" in grey.
+
+    Args:
+        video_path:      Source video file (any OpenCV-readable format).
+        tracks_json:     Tracks dict (run_tracking output / tracks.json).
+        predictions_csv: Path to predictions.csv from classify_tubelets.
+        output_path:     Destination MP4 path.
+        fps:             Output video frame rate (from VideoIngestor header).
+        job_id:          Used as video_id when loading predictions.
+        max_dim:         Max output dimension in pixels.
+
+    Returns:
+        True on success, False on error.
+    """
+    video_path = Path(video_path)
+    output_path = Path(output_path)
+    predictions_csv = Path(predictions_csv)
+
+    frames_dict = tracks_json.get("frames", {})
+    total_frames = int(tracks_json.get("stats", {}).get("total_frames", len(frames_dict)))
+
+    print(f"  Loading predictions...", end=" ", flush=True)
+    frame_labels, frame_conf = load_predictions(predictions_csv, "inference", job_id)
+    print(f"done. {len(frame_labels)} tracks have predictions.")
+
+    cap = cv2.VideoCapture(str(video_path))
+    if not cap.isOpened():
+        print(f"[ERROR] Cannot open video: {video_path}")
+        return False
+
+    ret, sample = cap.read()
+    if not ret:
+        print("[ERROR] Cannot read first frame")
+        cap.release()
+        return False
+
+    h, w = sample.shape[:2]
+    scale = min(max_dim / w, max_dim / h, 1.0)
+    out_w = int(w * scale)
+    out_h = int(h * scale) + 44
+    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    writer = cv2.VideoWriter(str(output_path), fourcc, fps, (out_w, out_h))
+    if not writer.isOpened():
+        print("[WARN] mp4v codec failed, trying avc1...")
+        fourcc = cv2.VideoWriter_fourcc(*"avc1")
+        writer = cv2.VideoWriter(str(output_path), fourcc, fps, (out_w, out_h))
+    if not writer.isOpened():
+        print("[ERROR] Could not open VideoWriter")
+        cap.release()
+        return False
+
+    model_tag = predictions_csv.stem
+    active_labels_seen: set = set()
+    written = 0
+    frame_id = 0
+
+    while True:
+        ret, img = cap.read()
+        if not ret:
+            break
+
+        dets = frames_dict.get(str(frame_id), [])
+
+        if scale < 1.0:
+            img = cv2.resize(img, (int(w * scale), int(h * scale)))
+            dets = [{**d, "bbox": [c * scale for c in d["bbox"]]} for d in dets]
+
+        for det in dets:
+            lbl = frame_labels.get(det["track_id"], {}).get(frame_id)
+            if lbl is not None:
+                active_labels_seen.add(lbl)
+
+        annotated = render_frame(img, dets, frame_labels, frame_conf, frame_id)
+        draw_legend(annotated, active_labels_seen)
+        frame_with_hud = draw_hud(
+            annotated, frame_id, total_frames, len(dets),
+            job_id, "inference", fps, model_tag,
+        )
+
+        if frame_with_hud.shape[1] != out_w or frame_with_hud.shape[0] != out_h:
+            frame_with_hud = cv2.resize(frame_with_hud, (out_w, out_h))
+
+        writer.write(frame_with_hud)
+        written += 1
+        frame_id += 1
+
+    writer.release()
+    cap.release()
+    print(f"  Render complete: {written} frames → {output_path}")
+    return True
 
 
 def render_behavior_video(track_path, project_root, out_dir, dataset,

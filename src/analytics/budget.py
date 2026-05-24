@@ -153,6 +153,34 @@ def compute_behavioral_deviation(budget: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(records)
 
 
+def run_budget_analysis(
+    timelines_dir: "Path | str",
+    output_dir: "Path | str",
+) -> None:
+    """Compute activity budgets and behavioral deviation from timeline CSVs.
+
+    Writes activity_budget.csv, transition_matrix.csv, and
+    behavior_deviation.csv to output_dir.
+    """
+    timelines_dir = Path(timelines_dir)
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        timelines = load_all_timelines(timelines_dir)
+    except RuntimeError:
+        return  # no timeline CSVs available yet
+
+    budget = compute_activity_budget(timelines)
+    budget.to_csv(output_dir / "activity_budget.csv", index=False)
+
+    transitions = compute_transition_matrix(timelines)
+    transitions.to_csv(output_dir / "transition_matrix.csv", index=False)
+
+    deviation = compute_behavioral_deviation(budget)
+    deviation.to_csv(output_dir / "behavior_deviation.csv", index=False)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--timelines_dir", required=True,
