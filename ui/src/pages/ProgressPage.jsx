@@ -9,7 +9,7 @@ const STAGE_NAMES = {
 function ProgressBar({ value, max }) {
   const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0
   return (
-    <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+    <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2.5 overflow-hidden">
       <div
         className="h-full bg-blue-500 rounded-full transition-all duration-300"
         style={{ width: `${pct}%` }}
@@ -68,11 +68,13 @@ export default function ProgressPage() {
     return (
       <div className="max-w-xl mx-auto px-4 py-10">
         <h1 className="text-2xl font-semibold mb-4">Job failed</h1>
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-6 text-sm break-words">
+        <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800
+          text-red-700 dark:text-red-400 rounded-lg px-4 py-3 mb-6 text-sm break-words">
           {failed}
         </div>
         <Link to="/">
-          <button className="bg-gray-200 text-gray-700 font-semibold px-5 py-2.5 rounded-lg hover:bg-gray-300 transition-colors">
+          <button className="bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300
+            font-semibold px-5 py-2.5 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors">
             Back to upload
           </button>
         </Link>
@@ -83,10 +85,10 @@ export default function ProgressPage() {
   return (
     <div className="max-w-xl mx-auto px-4 py-10">
       <h1 className="text-2xl font-semibold mb-1">Running inference…</h1>
-      <p className="text-xs text-gray-400 mb-8 font-mono">{jobId}</p>
+      <p className="text-xs text-gray-400 dark:text-gray-500 mb-8 font-mono">{jobId}</p>
 
-      <div className="bg-white rounded-xl border border-gray-100 p-5 mb-4 space-y-2">
-        <p className="text-sm text-gray-500">
+      <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-5 mb-4 space-y-2">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           {stageNum > 0
             ? `Stage ${stageNum} / ${totalStages}: ${stageName}`
             : 'Starting…'}
@@ -94,8 +96,8 @@ export default function ProgressPage() {
         <ProgressBar value={stageNum} max={totalStages} />
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-2">
-        <p className="text-sm text-gray-500">
+      <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-5 space-y-2">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           {totalFrames > 0
             ? `Frame ${frame.toLocaleString()} / ${totalFrames.toLocaleString()}`
             : 'Waiting for first event…'}

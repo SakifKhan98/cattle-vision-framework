@@ -72,7 +72,10 @@ export default function UploadPage() {
         {/* Drop zone */}
         <div
           className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors mb-5
-            ${dragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-white hover:border-gray-400'}`}
+            ${dragging
+              ? 'border-blue-500 bg-blue-50 dark:bg-blue-950'
+              : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-400 dark:hover:border-gray-500'
+            }`}
           onDrop={onDrop}
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
@@ -91,24 +94,24 @@ export default function UploadPage() {
           />
           {file ? (
             <>
-              <p className="text-sm text-gray-500">Selected video:</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Selected video:</p>
               <p className="font-semibold mt-1">{file.name}</p>
-              <p className="text-sm text-gray-400 mt-1">({(file.size / 1e6).toFixed(1)} MB)</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">({(file.size / 1e6).toFixed(1)} MB)</p>
             </>
           ) : (
             <>
-              <p className="text-gray-600">Drag & drop a video file here</p>
-              <p className="text-gray-400 text-sm mt-1">or click to browse</p>
-              <p className="text-gray-300 text-xs mt-3">{ACCEPTED.join('  ')}</p>
+              <p className="text-gray-600 dark:text-gray-300">Drag & drop a video file here</p>
+              <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">or click to browse</p>
+              <p className="text-gray-300 dark:text-gray-600 text-xs mt-3">{ACCEPTED.join('  ')}</p>
             </>
           )}
         </div>
 
         {/* Config */}
-        <div className="bg-white rounded-xl p-5 mb-5 space-y-4 border border-gray-100">
-          <h2 className="text-base font-semibold text-gray-700">Options</h2>
+        <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-5 mb-5 space-y-4">
+          <h2 className="text-base font-semibold text-gray-700 dark:text-gray-300">Options</h2>
 
-          <label className="flex items-center gap-3 text-sm text-gray-700">
+          <label className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
             <span className="w-44">Confidence threshold</span>
             <input
               type="number"
@@ -117,11 +120,13 @@ export default function UploadPage() {
               step={0.01}
               value={confidence}
               onChange={(e) => setConfidence(parseFloat(e.target.value))}
-              className="w-20 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-20 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800
+                text-gray-900 dark:text-gray-100 rounded px-2 py-1 text-sm
+                focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </label>
 
-          <label className="flex items-center gap-3 text-sm text-gray-700 cursor-pointer">
+          <label className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
             <input
               type="checkbox"
               checked={cleanup}
@@ -133,7 +138,8 @@ export default function UploadPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-5 text-sm">
+          <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800
+            text-red-700 dark:text-red-400 rounded-lg px-4 py-3 mb-5 text-sm">
             {error}
           </div>
         )}
@@ -142,7 +148,8 @@ export default function UploadPage() {
           type="submit"
           disabled={submitting || !file}
           className="bg-blue-600 text-white font-semibold px-6 py-2.5 rounded-lg
-            hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
+            hover:bg-blue-700 disabled:bg-blue-300 dark:disabled:bg-blue-900
+            disabled:cursor-not-allowed transition-colors"
         >
           {submitting ? 'Uploading…' : 'Run inference'}
         </button>
