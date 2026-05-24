@@ -2,6 +2,23 @@
 
 > **Other agents:** see `AGENTS.md` (same content, generic format).
 
+## 0. Python Environment (REQUIRED)
+
+**Always activate the `cattletransformer` conda environment before running any Python
+file, pytest invocation, or pip/conda install.**
+
+Use this pattern for every Python or pip command:
+
+```bash
+source ~/miniconda3/etc/profile.d/conda.sh && conda activate cattletransformer && python ...
+source ~/miniconda3/etc/profile.d/conda.sh && conda activate cattletransformer && pip install ...
+source ~/miniconda3/etc/profile.d/conda.sh && conda activate cattletransformer && python -m pytest ...
+```
+
+Never use the bare system `python3` or `pip3` for project code — they will be missing
+project dependencies. If the conda init script is at a different path on HiPE1, use
+`source /home/zxs12/miniconda3/etc/profile.d/conda.sh` instead.
+
 ## 1. Project Overview
 
 MS thesis project (Texas State University, Sakif Khan, 2026) that recognizes 7 dairy-cattle
