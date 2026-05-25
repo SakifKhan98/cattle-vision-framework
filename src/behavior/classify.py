@@ -105,6 +105,11 @@ def classify_tubelets(
             model = _build_model(num_classes).to(device)
             ckpt = torch.load(checkpoint, map_location=device)
             state = ckpt.get("model_state", ckpt)
+            # Remap keys saved with older HF VideoMAE (fc_norm → videomae.layernorm)
+            state = {
+                k.replace("fc_norm.", "videomae.layernorm."): v
+                for k, v in state.items()
+            }
             model.load_state_dict(state)
         else:
             model = _model.to(device) if hasattr(_model, "to") else _model

@@ -11,6 +11,10 @@ import yaml
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _OCSORT_ROOT = _REPO_ROOT / "third_party" / "OC_SORT"
 
+# Ensure repo root is on sys.path so `import src.*` works when run directly
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
 
 def _check_dependencies() -> None:
     if not _OCSORT_ROOT.exists():
