@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import asyncio
+import csv
 import json
 import shutil
 import tempfile
 import threading
 from pathlib import Path
-from typing import Any, AsyncGenerator, Dict
+from typing import Any, AsyncGenerator, Dict, List
 
 import yaml
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
@@ -59,7 +60,7 @@ async def submit_job(
     cleanup: bool = Form(default=False),
 ) -> JSONResponse:
     """Accept a video upload, start the inference pipeline in a background thread."""
-    job_id = store.create()
+    job_id = store.create(video_filename=video.filename)
 
     # Save uploaded video to a temp file that persists until the job finishes
     tmp_dir = Path(tempfile.mkdtemp(prefix=f"cvf_job_{job_id}_"))
@@ -185,3 +186,138 @@ async def serve_result(job_id: str, filename: str) -> FileResponse:
         raise HTTPException(status_code=400, detail="Invalid path")
 
     return FileResponse(str(file_path))
+
+
+@app.get("/jobs")
+async def list_jobs() -> JSONResponse:
+    """Return all jobs (id, status, video filename, created_at)."""
+    return JSONResponse(store.list_all())
+
+
+def _parse_activity_budget(path: Path) -> List[Dict[str, Any]]:
+    """Parse activity_budget.csv → list of per-track budget dicts."""
+    tracks: Dict[str, Dict[str, Any]] = {}
+    with open(path, newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            tid = row.get("track_id", "")
+            if tid not in tracks:
+                tracks[tid] = {"track_id": tid, "is_outlier": False, "behaviors": []}
+            try:
+                pct = float(row.get("pct_time", row.get("pct", 0)))
+                label_id = int(row.get("label_id", -1))
+            except (ValueError, TypeError):
+                continue
+            tracks[tid]["behaviors"].append({
+                "label_id": label_id,
+                "behavior": row.get("behavior", row.get("label_name", "")),
+                "pct_time": pct,
+            })
+    return list(tracks.values())
+
+
+def _parse_deviation(path: Path) -> List[Dict[str, Any]]:
+    """Parse behavior_deviation.csv → list of outlier rows."""
+    outlier_tracks: set = set()
+    all_rows: List[Dict[str, Any]] = []
+    with open(path, newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            is_out = row.get("is_outlier", "False").strip().lower() in ("true", "1", "yes")
+            if is_out:
+                try:
+                    pct = float(row.get("pct_time", 0))
+                    baseline = float(row.get("baseline_median", 0))
+                    deviation = float(row.get("deviation", 0))
+                    label_id = int(row.get("label_id", -1))
+                except (ValueError, TypeError):
+                    continue
+                outlier_tracks.add(row.get("track_id", ""))
+                all_rows.append({
+                    "track_id": row.get("track_id", ""),
+                    "behavior": row.get("behavior", ""),
+                    "label_id": label_id,
+                    "pct_time": pct,
+                    "baseline_median": baseline,
+                    "deviation": deviation,
+                })
+    return all_rows, outlier_tracks
+
+
+def _parse_timelines(timelines_dir: Path) -> tuple:
+    """Parse all timeline CSVs under timelines_dir → per-track segment lists."""
+    by_track: Dict[str, List[Dict[str, Any]]] = {}
+    for csv_path in sorted(timelines_dir.rglob("*.csv")):
+        with open(csv_path, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                tid = row.get("track_id", csv_path.stem)
+                if tid not in by_track:
+                    by_track[tid] = []
+                try:
+                    start_sec = float(row.get("start_sec", 0))
+                    end_sec = float(row.get("end_sec", 0))
+                    duration_sec = float(row.get("duration_sec", end_sec - start_sec))
+                    label_id = int(row.get("label_id", -1))
+                except (ValueError, TypeError):
+                    continue
+                by_track[tid].append({
+                    "label_id": label_id,
+                    "behavior": row.get("label_name", row.get("behavior", "")),
+                    "start_sec": start_sec,
+                    "end_sec": end_sec,
+                    "duration_sec": duration_sec,
+                })
+    return by_track
+
+
+@app.get("/jobs/{job_id}/analytics")
+async def job_analytics(job_id: str) -> JSONResponse:
+    """Parse result CSVs and return structured analytics data for the UI."""
+    job = store.get(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Job not found")
+    if job.status != "complete":
+        raise HTTPException(status_code=409, detail=f"Job status is '{job.status}', not 'complete'")
+
+    job_dir = _OUTPUT_ROOT / job_id
+
+    # Activity budget
+    budget_list: List[Dict[str, Any]] = []
+    budget_path = job_dir / "activity_budget.csv"
+    if budget_path.exists():
+        budget_list = _parse_activity_budget(budget_path)
+
+    # Outliers
+    outlier_rows: List[Dict[str, Any]] = []
+    outlier_tracks: set = set()
+    deviation_path = job_dir / "behavior_deviation.csv"
+    if deviation_path.exists():
+        outlier_rows, outlier_tracks = _parse_deviation(deviation_path)
+
+    # Mark outlier flag on budget entries
+    for entry in budget_list:
+        entry["is_outlier"] = entry["track_id"] in outlier_tracks
+
+    # Timelines
+    timeline_list: List[Dict[str, Any]] = []
+    total_duration = 0.0
+    timelines_dir = job_dir / "timelines"
+    if timelines_dir.exists():
+        by_track = _parse_timelines(timelines_dir)
+        for tid, segs in by_track.items():
+            if segs:
+                track_end = max(s["end_sec"] for s in segs)
+                total_duration = max(total_duration, track_end)
+            timeline_list.append({
+                "track_id": tid,
+                "is_outlier": tid in outlier_tracks,
+                "segments": segs,
+            })
+
+    return JSONResponse({
+        "activity_budget": budget_list,
+        "outliers": outlier_rows,
+        "timelines": timeline_list,
+        "total_duration_sec": total_duration,
+    })

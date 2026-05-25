@@ -1,34 +1,308 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 
-function DownloadLink({ href, label }) {
+// Behavior palette — matches render_behavior_video.py RGB values
+const BEHAVIOR_COLORS = {
+  0: '#50C850', // Standing  — green
+  1: '#5082FF', // Lying     — blue
+  2: '#32DCDC', // Foraging  — cyan
+  3: '#FFC832', // Drinking  — yellow
+  4: '#C850FF', // Ruminating — purple
+  5: '#FF8C32', // Grooming  — orange
+  6: '#A0A0A0', // Other     — grey
+}
+const FALLBACK_COLOR = '#A0A0A0'
+
+function behaviorColor(labelId) {
+  return BEHAVIOR_COLORS[labelId] ?? FALLBACK_COLOR
+}
+
+function shortId(tid) {
+  // Show last ~10 chars to keep rows compact
+  return tid.length > 12 ? '…' + tid.slice(-10) : tid
+}
+
+// ── Tooltip ──────────────────────────────────────────────────────────────────
+function Tooltip({ children, text }) {
+  const [show, setShow] = useState(false)
   return (
-    <a
-      href={href}
-      download
-      className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400
-        hover:text-blue-800 dark:hover:text-blue-300 hover:underline"
+    <span
+      className="relative"
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
     >
-      <span>↓</span>
-      {label}
-    </a>
+      {children}
+      {show && text && (
+        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 z-50
+          bg-gray-900 dark:bg-gray-700 text-white text-xs rounded px-2 py-1 whitespace-nowrap pointer-events-none shadow-lg">
+          {text}
+        </span>
+      )}
+    </span>
   )
 }
 
+// ── Timeline Gantt chart ──────────────────────────────────────────────────────
+const ROW_H = 28
+const LABEL_W = 110
+
+function TimelineChart({ timelines, totalDuration }) {
+  if (!timelines?.length) return null
+  const dur = totalDuration || 1
+
+  return (
+    <div>
+      <h2 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-3">
+        Behavioral Timeline
+      </h2>
+      <div className="overflow-x-auto">
+        <div style={{ minWidth: 500 }}>
+          {/* x-axis labels */}
+          <div className="flex pl-[110px] mb-1 text-xs text-gray-400 dark:text-gray-500 select-none">
+            {[0, 0.25, 0.5, 0.75, 1].map(t => (
+              <span key={t} className="flex-1 text-center">{(t * dur).toFixed(1)}s</span>
+            ))}
+          </div>
+          {timelines.map(({ track_id, is_outlier, segments }) => (
+            <div key={track_id} className="flex items-center mb-1" style={{ height: ROW_H }}>
+              {/* Row label */}
+              <div
+                style={{ width: LABEL_W, minWidth: LABEL_W }}
+                className={`text-xs font-mono pr-2 text-right truncate select-none ${
+                  is_outlier
+                    ? 'text-red-600 dark:text-red-400 font-bold'
+                    : 'text-gray-500 dark:text-gray-400'
+                }`}
+                title={track_id}
+              >
+                {shortId(track_id)}
+                {is_outlier && ' ⚠'}
+              </div>
+              {/* Segment bar */}
+              <div
+                className="relative flex-1 rounded overflow-hidden bg-gray-100 dark:bg-gray-800"
+                style={{ height: ROW_H - 6 }}
+              >
+                {segments.map((seg, i) => {
+                  const left = (seg.start_sec / dur) * 100
+                  const width = Math.max((seg.duration_sec / dur) * 100, 0.3)
+                  const tip = `${seg.behavior} | ${seg.start_sec.toFixed(2)}s–${seg.end_sec.toFixed(2)}s (${seg.duration_sec.toFixed(2)}s)`
+                  return (
+                    <Tooltip key={i} text={tip}>
+                      <span
+                        className="absolute inset-y-0 rounded-sm cursor-default"
+                        style={{
+                          left: `${left}%`,
+                          width: `${width}%`,
+                          backgroundColor: behaviorColor(seg.label_id),
+                          opacity: 0.85,
+                        }}
+                      />
+                    </Tooltip>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Legend */}
+      <div className="flex flex-wrap gap-3 mt-3">
+        {Object.entries(BEHAVIOR_COLORS).map(([id, color]) => {
+          const names = ['Standing','Lying','Foraging','Drinking','Ruminating','Grooming','Other']
+          return (
+            <div key={id} className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+              <span className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: color }} />
+              {names[+id]}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ── Activity Budget chart ─────────────────────────────────────────────────────
+function BudgetChart({ activityBudget }) {
+  if (!activityBudget?.length) return null
+
+  // Build herd-average row
+  const behaviorTotals = {}
+  for (const track of activityBudget) {
+    for (const b of track.behaviors) {
+      behaviorTotals[b.label_id] = (behaviorTotals[b.label_id] || 0) + b.pct_time
+    }
+  }
+  const n = activityBudget.length
+  const herdBehaviors = Object.entries(behaviorTotals).map(([id, total]) => ({
+    label_id: +id,
+    behavior: ['Standing','Lying','Foraging','Drinking','Ruminating','Grooming','Other'][+id] ?? 'Unknown',
+    pct_time: total / n,
+  }))
+
+  const rows = [...activityBudget, { track_id: 'Herd Average', is_outlier: false, behaviors: herdBehaviors }]
+
+  function BudgetRow({ track_id, is_outlier, behaviors }) {
+    return (
+      <div className="flex items-center gap-2 mb-1.5">
+        <div
+          style={{ width: LABEL_W, minWidth: LABEL_W }}
+          className={`text-xs font-mono text-right pr-2 truncate select-none ${
+            track_id === 'Herd Average'
+              ? 'text-gray-400 dark:text-gray-500 italic'
+              : is_outlier
+              ? 'text-red-600 dark:text-red-400 font-bold'
+              : 'text-gray-500 dark:text-gray-400'
+          }`}
+          title={track_id}
+        >
+          {track_id === 'Herd Average' ? track_id : shortId(track_id)}
+          {is_outlier && ' ⚠'}
+        </div>
+        <div className="flex flex-1 rounded overflow-hidden h-5">
+          {behaviors
+            .filter(b => b.pct_time > 0)
+            .sort((a, b) => a.label_id - b.label_id)
+            .map((b, i) => (
+              <Tooltip
+                key={i}
+                text={`${b.behavior}: ${b.pct_time.toFixed(1)}%`}
+              >
+                <span
+                  className="inline-block h-full cursor-default"
+                  style={{
+                    width: `${b.pct_time}%`,
+                    backgroundColor: behaviorColor(b.label_id),
+                    opacity: track_id === 'Herd Average' ? 0.6 : 0.85,
+                  }}
+                />
+              </Tooltip>
+            ))}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <h2 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-3">
+        Activity Budget
+      </h2>
+      <div className="overflow-x-auto">
+        <div style={{ minWidth: 400 }}>
+          {rows.map((row) => (
+            <BudgetRow key={row.track_id} {...row} />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Outlier table ─────────────────────────────────────────────────────────────
+function OutlierTable({ outliers }) {
+  if (!outliers?.length) return null
+  return (
+    <div>
+      <h2 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-3">
+        Outlier Alerts
+      </h2>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="text-left text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide border-b border-gray-200 dark:border-gray-700">
+              <th className="pb-2 pr-4">Track ID</th>
+              <th className="pb-2 pr-4">Behavior</th>
+              <th className="pb-2 pr-4 text-right">Animal %</th>
+              <th className="pb-2 pr-4 text-right">Herd Median %</th>
+              <th className="pb-2 text-right">Deviation</th>
+            </tr>
+          </thead>
+          <tbody>
+            {outliers.map((row, i) => (
+              <tr
+                key={i}
+                className="border-b border-gray-100 dark:border-gray-800
+                  text-red-700 dark:text-red-400 font-medium"
+              >
+                <td className="py-1.5 pr-4 font-mono text-xs" title={row.track_id}>{shortId(row.track_id)}</td>
+                <td className="py-1.5 pr-4">{row.behavior}</td>
+                <td className="py-1.5 pr-4 text-right">{row.pct_time.toFixed(1)}%</td>
+                <td className="py-1.5 pr-4 text-right">{row.baseline_median.toFixed(1)}%</td>
+                <td className="py-1.5 text-right">{row.deviation.toFixed(1)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+// ── Download panel ────────────────────────────────────────────────────────────
+function DownloadPanel({ manifest }) {
+  const zipUrl = manifest.timelines?.length
+    ? `/results/${manifest.annotated_video.split('/')[2]}/timelines_zip`
+    : null
+
+  function DL({ href, label }) {
+    return (
+      <a
+        href={href}
+        download
+        className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400
+          hover:text-blue-800 dark:hover:text-blue-300 hover:underline"
+      >
+        <span>↓</span>{label}
+      </a>
+    )
+  }
+
+  return (
+    <div>
+      <h2 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-3">Downloads</h2>
+      <div className="space-y-2">
+        <DL href={manifest.annotated_video} label="Annotated video (.mp4)" />
+        <DL href={manifest.activity_budget} label="Activity budget (.csv)" />
+        <DL href={manifest.behavior_deviation} label="Behavior deviation (.csv)" />
+        {manifest.timelines?.length > 0 && (
+          <details className="mt-1">
+            <summary className="text-xs text-gray-400 dark:text-gray-500 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 select-none">
+              Timeline CSVs ({manifest.timelines.length} files)
+            </summary>
+            <div className="pl-3 mt-1 space-y-1.5">
+              {manifest.timelines.map((url) => (
+                <DL key={url} href={url} label={url.split('/').pop()} />
+              ))}
+            </div>
+          </details>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
 export default function ResultsPage() {
   const { jobId } = useParams()
   const [manifest, setManifest] = useState(null)
+  const [analytics, setAnalytics] = useState(null)
   const [error, setError] = useState(null)
 
   useEffect(() => {
     fetch(`/jobs/${jobId}/results`)
-      .then((r) => { if (!r.ok) throw new Error(`Status ${r.status}`); return r.json() })
+      .then(r => { if (!r.ok) throw new Error(`Status ${r.status}`); return r.json() })
       .then(setManifest)
-      .catch((e) => setError(e.message))
+      .catch(e => setError(e.message))
+
+    fetch(`/jobs/${jobId}/analytics`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setAnalytics(data) })
+      .catch(() => {})
   }, [jobId])
 
   if (error) return (
-    <div className="max-w-xl mx-auto px-4 py-10">
+    <div className="max-w-3xl mx-auto px-4 py-10">
       <h1 className="text-2xl font-semibold mb-4">Results</h1>
       <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800
         text-red-700 dark:text-red-400 rounded-lg px-4 py-3 mb-6 text-sm">
@@ -44,39 +318,73 @@ export default function ResultsPage() {
   )
 
   if (!manifest) return (
-    <div className="max-w-xl mx-auto px-4 py-10 text-gray-400 dark:text-gray-500">
+    <div className="max-w-3xl mx-auto px-4 py-10 text-gray-400 dark:text-gray-500">
       Loading results…
     </div>
   )
 
   return (
-    <div className="max-w-xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-semibold mb-1">Inference complete</h1>
-      <p className="text-xs text-gray-400 dark:text-gray-500 mb-8 font-mono">{jobId}</p>
-
-      <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-5 mb-6 space-y-3">
-        <h2 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">Downloads</h2>
-        <DownloadLink href={manifest.annotated_video} label="Annotated video (.mp4)" />
-        <DownloadLink href={manifest.activity_budget} label="Activity budget (.csv)" />
-        <DownloadLink href={manifest.behavior_deviation} label="Behavior deviation (.csv)" />
-        {manifest.timelines?.length > 0 && (
-          <div>
-            <p className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2 mt-1">Timelines</p>
-            <div className="space-y-2 pl-2">
-              {manifest.timelines.map((url) => (
-                <DownloadLink key={url} href={url} label={url.split('/').pop()} />
-              ))}
-            </div>
-          </div>
-        )}
+    <div className="max-w-3xl mx-auto px-4 py-10 space-y-8">
+      <div>
+        <h1 className="text-2xl font-semibold mb-1">Inference complete</h1>
+        <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{jobId}</p>
       </div>
 
-      <Link to="/">
-        <button className="bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300
-          font-semibold px-5 py-2.5 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors">
-          Run another video
-        </button>
-      </Link>
+      {/* Annotated video */}
+      <section className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-5">
+        <h2 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-3">Annotated Video</h2>
+        <video
+          controls
+          className="w-full rounded-lg bg-black"
+          src={manifest.annotated_video}
+        >
+          Your browser does not support the video tag.
+        </video>
+      </section>
+
+      {/* Timeline chart */}
+      {analytics?.timelines?.length > 0 && (
+        <section className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-5">
+          <TimelineChart
+            timelines={analytics.timelines}
+            totalDuration={analytics.total_duration_sec}
+          />
+        </section>
+      )}
+
+      {/* Activity budget */}
+      {analytics?.activity_budget?.length > 0 && (
+        <section className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-5">
+          <BudgetChart activityBudget={analytics.activity_budget} />
+        </section>
+      )}
+
+      {/* Outlier table */}
+      {analytics?.outliers?.length > 0 && (
+        <section className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-5">
+          <OutlierTable outliers={analytics.outliers} />
+        </section>
+      )}
+
+      {/* Downloads */}
+      <section className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-5">
+        <DownloadPanel manifest={manifest} />
+      </section>
+
+      <div className="flex gap-3">
+        <Link to="/history">
+          <button className="bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300
+            font-semibold px-5 py-2.5 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors">
+            Job history
+          </button>
+        </Link>
+        <Link to="/">
+          <button className="bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300
+            font-semibold px-5 py-2.5 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors">
+            Run another video
+          </button>
+        </Link>
+      </div>
     </div>
   )
 }

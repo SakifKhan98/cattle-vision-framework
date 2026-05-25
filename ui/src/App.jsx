@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Link } from 'react-router-dom'
 import UploadPage from './pages/UploadPage.jsx'
 import ProgressPage from './pages/ProgressPage.jsx'
 import ResultsPage from './pages/ResultsPage.jsx'
+import HistoryPage from './pages/HistoryPage.jsx'
 
 function SunIcon() {
   return (
@@ -36,7 +37,15 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-200">
-      <header className="border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex justify-end">
+      <header className="border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center justify-between">
+        <Link
+          to="/history"
+          className="text-sm text-gray-500 dark:text-gray-400
+            hover:text-gray-900 dark:hover:text-gray-100 transition-colors px-3 py-1.5
+            rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+        >
+          Job history
+        </Link>
         <button
           onClick={() => setDark(d => !d)}
           aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
@@ -53,6 +62,7 @@ export default function App() {
         <Route path="/" element={<UploadPage />} />
         <Route path="/jobs/:jobId/progress" element={<ProgressPage />} />
         <Route path="/jobs/:jobId/results" element={<ResultsPage />} />
+        <Route path="/history" element={<HistoryPage />} />
       </Routes>
     </div>
   )

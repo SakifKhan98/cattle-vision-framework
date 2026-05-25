@@ -5,6 +5,7 @@ from __future__ import annotations
 import threading
 import uuid
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Literal, Optional
 
 
@@ -18,6 +19,8 @@ class Job:
     last_event: Optional[Dict[str, Any]] = None
     result_paths: Dict[str, str] = field(default_factory=dict)
     error: Optional[str] = None
+    video_filename: Optional[str] = None
+    created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
 class JobStore:
@@ -27,12 +30,25 @@ class JobStore:
         # per-job condition variables so SSE listeners wake up on updates
         self._conds: Dict[str, threading.Condition] = {}
 
-    def create(self) -> str:
+    def create(self, video_filename: Optional[str] = None) -> str:
         job_id = str(uuid.uuid4())
         with self._lock:
-            self._jobs[job_id] = Job(job_id=job_id)
+            self._jobs[job_id] = Job(job_id=job_id, video_filename=video_filename)
             self._conds[job_id] = threading.Condition(threading.Lock())
         return job_id
+
+    def list_all(self) -> List[Dict[str, Any]]:
+        with self._lock:
+            return [
+                {
+                    "job_id": j.job_id,
+                    "status": j.status,
+                    "video_filename": j.video_filename,
+                    "created_at": j.created_at,
+                    "error": j.error,
+                }
+                for j in self._jobs.values()
+            ]
 
     def get(self, job_id: str) -> Optional[Job]:
         with self._lock:
