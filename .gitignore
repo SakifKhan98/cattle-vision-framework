@@ -32,6 +32,9 @@ results/tracking/videos/
 results/tracking/visualizations/
 results/segmentation/viz/
 
+# Inference pipeline outputs (per-job directories with large intermediates + MP4s)
+results/inference/
+
 # Video files (too large for git)
 *.mp4
 *.avi
