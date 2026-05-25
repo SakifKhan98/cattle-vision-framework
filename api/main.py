@@ -12,8 +12,9 @@ from pathlib import Path
 from typing import Any, AsyncGenerator, Dict, List
 
 import yaml
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from sse_starlette.sse import EventSourceResponse
 
 from api.job_store import store
@@ -321,3 +322,24 @@ async def job_analytics(job_id: str) -> JSONResponse:
         "timelines": timeline_list,
         "total_duration_sec": total_duration,
     })
+
+
+# ── Production static file serving (SPA) ─────────────────────────────────────
+# Only mounted when the built frontend exists (i.e. production mode).
+# In dev mode the Vite dev server handles static assets via its own port.
+_DIST_DIR = _REPO_ROOT / "ui" / "dist"
+
+if (_DIST_DIR / "assets").exists():
+    app.mount("/assets", StaticFiles(directory=str(_DIST_DIR / "assets")), name="ui-assets")
+
+
+@app.get("/{full_path:path}", include_in_schema=False)
+async def serve_spa(full_path: str, request: Request) -> FileResponse:
+    """Catch-all: serve the React SPA index.html for all unmatched GET paths."""
+    index = _DIST_DIR / "index.html"
+    if not index.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="Frontend not built. Run: cd ui && npm run build",
+        )
+    return FileResponse(str(index))

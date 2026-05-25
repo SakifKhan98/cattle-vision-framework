@@ -215,7 +215,51 @@ cattle-vision-framework/
 
 ---
 
-## 9. Verification
+## 9. Running the Web App
+
+The Phase 9 inference UI is a FastAPI backend + React frontend.
+
+### Production (one command)
+
+```bash
+# 1. Build the React frontend (once, or after any UI change)
+cd ui && npm run build && cd ..
+
+# 2. Start the server and open the browser
+bash scripts/start_app.sh
+```
+
+`start_app.sh` will:
+- Verify `ui/dist/` exists (error with instructions if not)
+- Activate the `cattletransformer` conda environment
+- Start FastAPI on `http://localhost:8000` (serves the built React bundle)
+- Open `localhost:8000` in your default browser after 2 seconds
+
+Use `--port PORT` to change the port:
+```bash
+bash scripts/start_app.sh --port 8080
+```
+
+### Development (hot-reload)
+
+Run the backend and frontend in separate terminals:
+
+```bash
+# Terminal 1 — FastAPI backend (auto-reloads on Python changes)
+source ~/miniconda3/etc/profile.d/conda.sh && conda activate cattletransformer
+uvicorn api.main:app --reload --port 8000
+
+# Terminal 2 — Vite dev server (hot-reloads on React changes)
+cd ui && npm run dev
+```
+
+The Vite dev server runs on `http://localhost:5173` and proxies `/jobs` and
+`/results` requests to port 8000. Open `localhost:5173` in your browser during
+development.
+
+---
+
+## 10. Verification
 
 ```bash
 # Imports work
