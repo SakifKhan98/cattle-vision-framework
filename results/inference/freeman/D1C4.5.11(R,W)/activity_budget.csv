@@ -1,0 +1,15 @@
+dataset,video_id,track_id,label_id,behavior,duration_sec,pct_time
+inference,"D1C4.5.11(R,W)",track_0001,0,Standing,0.0,0.0
+inference,"D1C4.5.11(R,W)",track_0001,1,Lying,0.0,0.0
+inference,"D1C4.5.11(R,W)",track_0001,2,Foraging,0.8,100.0
+inference,"D1C4.5.11(R,W)",track_0001,3,Drinking,0.0,0.0
+inference,"D1C4.5.11(R,W)",track_0001,4,Ruminating,0.0,0.0
+inference,"D1C4.5.11(R,W)",track_0001,5,Grooming,0.0,0.0
+inference,"D1C4.5.11(R,W)",track_0001,6,Other,0.0,0.0
+inference,"D1C4.5.11(R,W)",track_0002,0,Standing,0.267,1.9632
+inference,"D1C4.5.11(R,W)",track_0002,1,Lying,0.0,0.0
+inference,"D1C4.5.11(R,W)",track_0002,2,Foraging,6.666,49.0147
+inference,"D1C4.5.11(R,W)",track_0002,3,Drinking,0.0,0.0
+inference,"D1C4.5.11(R,W)",track_0002,4,Ruminating,0.533,3.9191
+inference,"D1C4.5.11(R,W)",track_0002,5,Grooming,5.334,39.2206
+inference,"D1C4.5.11(R,W)",track_0002,6,Other,0.8,5.8824

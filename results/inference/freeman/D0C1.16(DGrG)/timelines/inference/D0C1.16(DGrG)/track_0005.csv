@@ -1,0 +1,5 @@
+track_id,label_id,label_name,start_frame,end_frame,start_sec,end_sec,duration_sec
+track_0005,4,Ruminating,48,152,1.6,5.067,3.467
+track_0005,1,Lying,152,160,5.067,5.334,0.267
+track_0005,4,Ruminating,160,216,5.334,7.2,1.867
+track_0005,4,Ruminating,328,352,10.934,11.734,0.8

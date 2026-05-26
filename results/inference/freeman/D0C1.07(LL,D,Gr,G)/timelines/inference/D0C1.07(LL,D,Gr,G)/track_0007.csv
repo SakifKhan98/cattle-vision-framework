@@ -1,0 +1,7 @@
+track_id,label_id,label_name,start_frame,end_frame,start_sec,end_sec,duration_sec
+track_0007,5,Grooming,55,79,1.833,2.633,0.8
+track_0007,5,Grooming,135,151,4.5,5.034,0.533
+track_0007,6,Other,151,159,5.034,5.3,0.267
+track_0007,5,Grooming,159,255,5.3,8.5,3.2
+track_0007,6,Other,255,271,8.5,9.034,0.533
+track_0007,5,Grooming,271,295,9.034,9.834,0.8

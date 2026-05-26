@@ -1,0 +1,8 @@
+track_id,label_id,label_name,start_frame,end_frame,start_sec,end_sec,duration_sec
+track_0039,1,Lying,1033,1057,34.434,35.235,0.8
+track_0039,2,Foraging,1057,1073,35.235,35.768,0.533
+track_0039,1,Lying,1073,1113,35.768,37.101,1.333
+track_0039,2,Foraging,1113,1121,37.101,37.368,0.267
+track_0039,1,Lying,1121,1161,37.368,38.701,1.333
+track_0039,2,Foraging,1161,1169,38.701,38.968,0.267
+track_0039,1,Lying,1169,1297,38.968,43.235,4.267

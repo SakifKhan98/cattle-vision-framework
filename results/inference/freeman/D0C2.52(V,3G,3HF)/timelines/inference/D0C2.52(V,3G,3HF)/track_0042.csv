@@ -1,0 +1,4 @@
+track_id,label_id,label_name,start_frame,end_frame,start_sec,end_sec,duration_sec
+track_0042,6,Other,619,627,20.634,20.901,0.267
+track_0042,1,Lying,627,651,20.901,21.701,0.8
+track_0042,2,Foraging,651,675,21.701,22.501,0.8

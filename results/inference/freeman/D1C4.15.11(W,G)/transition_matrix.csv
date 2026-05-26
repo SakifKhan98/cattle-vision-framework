@@ -1,0 +1,9 @@
+dataset,from_label,from_behavior,to_label,to_behavior,count,probability
+inference,0,Standing,0,Standing,1,0.1667
+inference,0,Standing,2,Foraging,2,0.3333
+inference,0,Standing,6,Other,3,0.5
+inference,2,Foraging,0,Standing,3,0.375
+inference,2,Foraging,2,Foraging,1,0.125
+inference,2,Foraging,6,Other,4,0.5
+inference,6,Other,0,Standing,2,0.3333
+inference,6,Other,2,Foraging,4,0.6667

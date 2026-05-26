@@ -1,0 +1,6 @@
+track_id,label_id,label_name,start_frame,end_frame,start_sec,end_sec,duration_sec
+track_0039,6,Other,576,600,19.201,20.001,0.8
+track_0039,5,Grooming,600,616,20.001,20.534,0.533
+track_0039,6,Other,616,648,20.534,21.601,1.067
+track_0039,2,Foraging,648,672,21.601,22.401,0.8
+track_0039,6,Other,672,680,22.401,22.667,0.267

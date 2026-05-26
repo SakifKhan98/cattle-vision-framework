@@ -1,0 +1,16 @@
+track_id,label_id,label_name,start_frame,end_frame,start_sec,end_sec,duration_sec
+track_0023,6,Other,200,248,6.667,8.267,1.6
+track_0023,6,Other,360,368,12.0,12.267,0.267
+track_0023,0,Standing,368,376,12.267,12.534,0.267
+track_0023,2,Foraging,376,424,12.534,14.134,1.6
+track_0023,0,Standing,424,440,14.134,14.667,0.533
+track_0023,2,Foraging,440,448,14.667,14.934,0.267
+track_0023,0,Standing,448,512,14.934,17.067,2.133
+track_0023,2,Foraging,512,544,17.067,18.134,1.067
+track_0023,0,Standing,544,552,18.134,18.401,0.267
+track_0023,2,Foraging,552,576,18.401,19.201,0.8
+track_0023,0,Standing,576,624,19.201,20.801,1.6
+track_0023,2,Foraging,624,632,20.801,21.067,0.267
+track_0023,0,Standing,632,760,21.067,25.334,4.267
+track_0023,2,Foraging,760,776,25.334,25.868,0.533
+track_0023,0,Standing,776,784,25.868,26.134,0.267

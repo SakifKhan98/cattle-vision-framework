@@ -34,6 +34,17 @@ results/segmentation/viz/
 
 # Inference pipeline outputs (per-job directories with large intermediates + MP4s)
 results/inference/
+# Allow committed analytics CSVs from the inference pipeline
+!results/inference/
+!results/inference/freeman/
+!results/inference/freeman/timing.csv
+!results/inference/freeman/*/
+!results/inference/freeman/*/activity_budget.csv
+!results/inference/freeman/*/behavior_deviation.csv
+!results/inference/freeman/*/transition_matrix.csv
+!results/inference/freeman/*/timing.csv
+!results/inference/freeman/*/timelines/
+!results/inference/freeman/*/timelines/*.csv
 
 # Video files (too large for git)
 *.mp4

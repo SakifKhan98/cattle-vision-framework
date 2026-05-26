@@ -1,0 +1,3 @@
+track_id,label_id,label_name,start_frame,end_frame,start_sec,end_sec,duration_sec
+track_0005,1,Lying,0,296,0.0,9.867,9.867
+track_0005,1,Lying,320,472,10.667,15.733,5.067

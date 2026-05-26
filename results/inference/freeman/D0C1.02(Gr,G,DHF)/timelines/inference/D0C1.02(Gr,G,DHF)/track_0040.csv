@@ -1,0 +1,3 @@
+track_id,label_id,label_name,start_frame,end_frame,start_sec,end_sec,duration_sec
+track_0040,6,Other,746,778,24.867,25.934,1.067
+track_0040,4,Ruminating,778,786,25.934,26.201,0.267

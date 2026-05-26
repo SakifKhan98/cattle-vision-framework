@@ -1,0 +1,12 @@
+track_id,label_id,label_name,start_frame,end_frame,start_sec,end_sec,duration_sec
+track_0006,5,Grooming,0,120,0.0,4.0,4.0
+track_0006,1,Lying,120,136,4.0,4.533,0.533
+track_0006,5,Grooming,136,232,4.533,7.734,3.2
+track_0006,6,Other,232,248,7.734,8.267,0.533
+track_0006,5,Grooming,248,296,8.267,9.867,1.6
+track_0006,1,Lying,296,312,9.867,10.4,0.533
+track_0006,5,Grooming,312,336,10.4,11.2,0.8
+track_0006,1,Lying,336,360,11.2,12.0,0.8
+track_0006,5,Grooming,360,376,12.0,12.534,0.533
+track_0006,1,Lying,384,424,12.8,14.134,1.333
+track_0006,1,Lying,576,592,19.201,19.734,0.533

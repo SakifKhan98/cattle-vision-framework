@@ -1,0 +1,2 @@
+video,file_size_mb,frame_count,fps,duration_s,ingest_s,detect_s,track_s,extract_s,classify_s,analyze_s,render_s,total_s
+"D0C2.61(3T,DA,3W,G).avi",173.0,908,29.999,30.3,0.0,69.77,0.66,493.83,47.14,0.17,28.03,639.61

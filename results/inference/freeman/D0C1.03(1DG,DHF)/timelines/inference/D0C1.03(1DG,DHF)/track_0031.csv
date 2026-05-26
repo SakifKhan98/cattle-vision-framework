@@ -1,0 +1,8 @@
+track_id,label_id,label_name,start_frame,end_frame,start_sec,end_sec,duration_sec
+track_0031,5,Grooming,1001,1009,33.368,33.634,0.267
+track_0031,4,Ruminating,1009,1033,33.634,34.434,0.8
+track_0031,4,Ruminating,1105,1113,36.835,37.101,0.267
+track_0031,5,Grooming,1113,1129,37.101,37.635,0.533
+track_0031,0,Standing,1129,1145,37.635,38.168,0.533
+track_0031,5,Grooming,1145,1161,38.168,38.701,0.533
+track_0031,4,Ruminating,1161,1177,38.701,39.235,0.533

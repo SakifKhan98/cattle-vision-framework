@@ -1,0 +1,6 @@
+track_id,label_id,label_name,start_frame,end_frame,start_sec,end_sec,duration_sec
+track_0057,6,Other,628,692,20.934,23.067,2.133
+track_0057,0,Standing,692,708,23.067,23.601,0.533
+track_0057,6,Other,708,852,23.601,28.401,4.8
+track_0057,5,Grooming,852,868,28.401,28.934,0.533
+track_0057,6,Other,868,908,28.934,30.268,1.333

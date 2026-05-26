@@ -1,0 +1,9 @@
+track_id,label_id,label_name,start_frame,end_frame,start_sec,end_sec,duration_sec
+track_0019,4,Ruminating,613,621,20.434,20.701,0.267
+track_0019,1,Lying,621,677,20.701,22.567,1.867
+track_0019,2,Foraging,677,765,22.567,25.501,2.933
+track_0019,1,Lying,765,773,25.501,25.768,0.267
+track_0019,2,Foraging,773,789,25.768,26.301,0.533
+track_0019,1,Lying,789,829,26.301,27.634,1.333
+track_0019,2,Foraging,829,845,27.634,28.168,0.533
+track_0019,1,Lying,845,861,28.168,28.701,0.533

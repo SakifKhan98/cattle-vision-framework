@@ -161,7 +161,7 @@ Full per-class breakdown in `results/behavior/f1_per_class.csv`.
 
 ## 10. Current Status
 
-**Phases 0–7 complete.** Repo is live at `github.com/SakifKhan98/cattle-vision-framework`.
+**Phases 0–9 complete.** Repo is live at `github.com/SakifKhan98/cattle-vision-framework`.
 
 | Phase | What | Status |
 |---|---|---|
@@ -174,13 +174,15 @@ Full per-class breakdown in `results/behavior/f1_per_class.csv`.
 | 5 | Tubelet generation (125k clips) | ✅ complete |
 | 6 | VideoMAE behavior classification (5 configs) | ✅ complete |
 | 7 | Behavior analytics (timelines, budgets, deviation) | ✅ complete |
-| **8** | **Additional dataset evaluation (generalization)** | **🔲 next** |
+| 8 | Additional dataset evaluation (generalization) | ✅ complete |
+| 9 | Inference web app + full Freeman Center pipeline run | ✅ complete |
 
-**Phase 8 next steps** (see `docs/design/phase8_additional_datasets_prd.md`):
-1. OpenCows2020 — detection mAP (OOD generalization, images only)
-2. Cows2021 — detection mAP + short-term tracking IDF1
-3. CattleEyeView — detection + Mask IoU + IDF1
-4. Freeman Center — full pipeline + behavior F1 + activity budgets (Freeman Center annotation format and local path TBD)
+**Phase 8 summary** (see `docs/design/reports/phase8_ood_evaluation_report.md`):
+- OpenCows2020: mAP@50 = 33.3% (aerial top-down, large domain shift)
+- Cows2021: mAP@50 = 27.3% (indoor barn, moderate shift)
+- CattleEyeView: mAP@50 = 47.0%, Mask IoU = 86.5% (top-down outdoor)
+- Freeman Center: mAP@50 = 73.0% (angled ranch, parity with in-domain)
+- Freeman Center full pipeline: 14-video behavioral run, Foraging dominant, pipeline stable end-to-end
 
 **Remaining TODOs:**
 - Upload model weights to HuggingFace (`sakifkhan/cattle-vision-framework`)

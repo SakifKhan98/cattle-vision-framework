@@ -1,0 +1,4 @@
+track_id,label_id,label_name,start_frame,end_frame,start_sec,end_sec,duration_sec
+track_0007,6,Other,6,22,0.2,0.733,0.533
+track_0007,6,Other,134,158,4.467,5.267,0.8
+track_0007,6,Other,214,246,7.133,8.2,1.067

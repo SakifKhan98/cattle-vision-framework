@@ -1,0 +1,14 @@
+dataset,from_label,from_behavior,to_label,to_behavior,count,probability
+inference,0,Standing,6,Other,2,1.0
+inference,2,Foraging,2,Foraging,2,0.125
+inference,2,Foraging,5,Grooming,1,0.0625
+inference,2,Foraging,6,Other,13,0.8125
+inference,4,Ruminating,6,Other,2,1.0
+inference,5,Grooming,0,Standing,1,0.1667
+inference,5,Grooming,2,Foraging,2,0.3333
+inference,5,Grooming,6,Other,3,0.5
+inference,6,Other,0,Standing,1,0.0476
+inference,6,Other,2,Foraging,10,0.4762
+inference,6,Other,4,Ruminating,2,0.0952
+inference,6,Other,5,Grooming,4,0.1905
+inference,6,Other,6,Other,4,0.1905
