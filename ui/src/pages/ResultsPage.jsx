@@ -88,17 +88,17 @@ function TimelineChart({ timelines, totalDuration }) {
                   const width = Math.max((seg.duration_sec / dur) * 100, 0.3)
                   const tip = `${seg.behavior} | ${seg.start_sec.toFixed(2)}s–${seg.end_sec.toFixed(2)}s (${seg.duration_sec.toFixed(2)}s)`
                   return (
-                    <Tooltip key={i} text={tip}>
-                      <span
-                        className="absolute inset-y-0 rounded-sm cursor-default"
-                        style={{
-                          left: `${left}%`,
-                          width: `${width}%`,
-                          backgroundColor: behaviorColor(seg.label_id),
-                          opacity: 0.85,
-                        }}
-                      />
-                    </Tooltip>
+                    <span
+                      key={i}
+                      className="absolute inset-y-0 rounded-sm cursor-default"
+                      title={tip}
+                      style={{
+                        left: `${left}%`,
+                        width: `${width}%`,
+                        backgroundColor: behaviorColor(seg.label_id),
+                        opacity: 0.85,
+                      }}
+                    />
                   )
                 })}
               </div>

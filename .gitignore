@@ -33,9 +33,8 @@ results/tracking/visualizations/
 results/segmentation/viz/
 
 # Inference pipeline outputs (per-job directories with large intermediates + MP4s)
-results/inference/
+results/inference/*
 # Allow committed analytics CSVs from the inference pipeline
-!results/inference/
 !results/inference/freeman/
 !results/inference/freeman/timing.csv
 !results/inference/freeman/*/
