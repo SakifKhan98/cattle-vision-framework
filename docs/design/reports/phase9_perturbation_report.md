@@ -187,7 +187,16 @@ causes 10.8 pp degradation on CBVD-5 vs. < 8 pp across OOD datasets, suggesting 
 in-domain model relies more on fine-grained texture cues that noise and fog disrupt.
 
 **Summary ranking (most → least damaging, consistent across all interpretable datasets):**
-Brightness >> Fog > Rain > Gaussian noise > Motion blur
+
+| Perturbation | Damage level | Notes |
+|---|---|---|
+| Brightness | Catastrophic | 81–99% relative collapse; scales with clean baseline |
+| Fog | Moderate–severe | 7–36 pp; outdoor deployment risk |
+| Rain | Modest | 3–11 pp; operationally benign |
+| Gaussian noise | Negligible | < 11 pp; slight improvements on 2 datasets |
+| Motion blur | Negligible | < 8 pp; most robust class overall |
+
+CVB results confirm the floor-effect concern — all deltas < 0.06 pp, uninterpretable — and are excluded from comparative analysis. The five remaining datasets (CBVD-5, OpenCows2020, Cows2021, CattleEyeView, Freeman) produce the consistent ranking above.
 
 ## 5. Thesis §5.4.2 draft (FINAL)
 
