@@ -130,7 +130,9 @@ Columns: `dataset, video_id, tubelet_dir, start_frame, end_frame, label_id, pred
 
 | Stage                                       | Metric                          | v1         | v2 (RF-DETR tracks) |
 | ------------------------------------------- | ------------------------------- | ---------- | ------------------- |
-| Detection                                   | mAP@50 (combined, cross-domain) | 70.4%      | —                   |
+| Detection                                   | mAP@50 (CBVD-5 val, see note)  | 70.4%      | —                   |
+| Detection                                   | mAP@50 CBVD-5 test              | 45.9%      | —                   |
+| Detection                                   | mAP@50 CVB test                 | 5.7%       | —                   |
 | Tracking                                    | IDF1                            | 67.31%     | —                   |
 | Tracking                                    | MOTA                            | 36.61%     | —                   |
 | Behavior Config 1 (CBVD-5 in-domain)        | macro-F1                        | 0.3149     | **0.4511**          |
@@ -142,6 +144,12 @@ Columns: `dataset, video_id, tubelet_dir, start_frame, end_frame, label_id, pred
 v2 models trained on RF-DETR-tracked tubelets (no SAM2 segmentation in tracking loop).
 Full per-class breakdown in `results/behavior/f1_per_class.csv`.
 
+**Note on 70.4% mAP@50:** `data/processed/detection/combined/valid/` contains only CBVD-5
+images (1,612 images; CVB validation images were not merged in). Early stopping and the
+reported 70.4% are therefore CBVD-5-scoped, not a true combined validation. The per-dataset
+test AP numbers (45.9% CBVD-5, 5.7% CVB) are the authoritative per-dataset figures.
+The low CVB test AP reflects that the checkpoint was selected on CBVD-5 validation only.
+
 ## 8. Common Gotchas
 
 - **CBVD-5 test=val**: The dataset has no separate test set; validation split is used as test.
@@ -151,6 +159,7 @@ Full per-class breakdown in `results/behavior/f1_per_class.csv`.
 - **conda not in PATH**: On HiPE1, activate with `source /home/zxs12/miniconda3/etc/profile.d/conda.sh && conda activate cattletransformer`.
 - **OC-SORT path**: `src/tracking/track.py` inserts `third_party/OC_SORT` into `sys.path` at runtime. Must clone before running script 08.
 - **`results/` is committed**: Do not add `results/` to `.gitignore`. Only specific large subdirs are gitignored.
+- **Broken symlinks in `data/processed/detection/`**: Images are symlinks into `data/raw/`. If they point to a `one_day/` prefix (e.g., `/…/one_day/data/raw/cbvd5/…`), they are broken. Fix with `scripts/fix_detection_symlinks.py` or re-run the prepare scripts. This caused 0/N inference in `eval_detection_ood.py` (images silently skipped). As of May 2026 all 22,818 affected symlinks have been corrected.
 
 ## 9. HiPE1 Server
 

@@ -107,6 +107,17 @@ using standard COCO detection metrics. Evaluation used Exponential
 Moving Average (EMA) weights, which consistently outperform the latest
 checkpoint in fine-tuning scenarios.
 
+> **Important clarification on "combined" validation:** The
+> `data/processed/detection/combined/valid/` split contains only CBVD-5
+> images (1,612 images; CVB validation images were not included when the
+> combined dataset was assembled). Early stopping and the 70.4% mAP@50
+> figure below are therefore CBVD-5-scoped, not a true combined
+> validation metric. This was confirmed in May 2026 when per-dataset test
+> evaluation was run (see §5.3). The 70.4% figure is retained as the
+> primary reported metric because it was the training-time stopping
+> criterion, but it should be interpreted as CBVD-5 in-domain validation
+> performance.
+
 **5.1 Precision, Recall and F1**
 
   ---------------------------- ------------- ----------------------------
@@ -145,6 +156,38 @@ checkpoint in fine-tuning scenarios.
     **AR@500 (recall ceiling)**       69.3%         Critical for SAM2
                                                     prompting coverage
   ------------------------------- ------------- --------------------------
+
+**5.3 Per-Dataset Test AP (May 2026)**
+
+Per-dataset test evaluation was run in May 2026 using the same
+checkpoint (`checkpoint_best_total.pth`) and threshold (0.3) as all
+prior OOD evaluations. Results are stored in
+`results/detection/cbvd5_test_ap.json` and
+`results/detection/cvb_test_ap.json`.
+
+  -------------------- ----------- -------------- ------------ --------- ----------
+       **Dataset**      **Images**   **mAP\@50**   **mAP\@50:95**  **AR\@100**  **Notes**
+
+        **CBVD-5**         292         45.9%          15.5%         24.3%     test=val split (no held-out test)
+
+          **CVB**          1320          5.7%           3.3%          4.3%     see discussion below
+  -------------------- ----------- -------------- ------------ --------- ----------
+
+The CBVD-5 test AP (45.9%) is lower than the 70.4% training-time
+validation metric, which is expected: (a) the 70.4% may reflect the
+best-seen epoch on the validation curve rather than a stable plateau,
+and (b) CBVD-5 test=val, so the same split was used — the gap reflects
+that training continued past the early stopping epoch.
+
+The CVB test AP (5.7%) is unexpectedly low for an in-domain split.
+The most likely cause is that CVB images were excluded from
+`combined/valid/` when the merged dataset was assembled, so the
+checkpoint selected by early stopping was never evaluated on CVB-style
+images. The model may have overfit its early-stopping metric to CBVD-5
+characteristics (indoor barn, fixed overhead cameras) while CVB
+(outdoor GoPro, 76 annotated cattle per image on average) received no
+validation signal. This is a meaningful limitation to document in the
+thesis §6.1.1 alongside the combined figure.
 
 **6. Discussion**
 
