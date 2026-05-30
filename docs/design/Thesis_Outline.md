@@ -141,29 +141,7 @@ Dr. Merritt Drewery
 
 ### 5.4.2 Controlled Environmental Perturbations
 
-The detection stage was evaluated under five classes of synthetic environmental
-perturbation — brightness reduction, Gaussian sensor noise, motion blur, synthetic fog,
-and synthetic rain — at two severity levels each, across four OOD datasets and the CBVD-5
-in-domain test set (CVB excluded — floor-effect baseline of 5.67% mAP50 renders deltas
-uninterpretable). Perturbations were applied in-memory using albumentations before RF-DETR
-inference; confidence threshold held fixed at 0.3 to match all prior evaluations.
-
-Brightness reduction was the dominant vulnerability across all datasets. Reducing
-brightness to 50% caused mAP50 drops of 14–59 pp; reducing to 25% caused drops of 26–72
-pp, representing 81–99% relative collapses. Stronger clean baselines did not confer
-protection — Freeman Center (72.98% clean) lost 72 pp absolute at high severity, the
-largest absolute loss of any dataset. Synthetic fog was second (7–36 pp at high severity),
-followed by rain (3–11 pp). Gaussian noise and motion blur were the most robust classes:
-noise caused < 11 pp even at high severity and produced slight improvements on two
-datasets; motion blur caused < 8 pp universally and marginal improvements on two datasets.
-These robustness properties emerged without augmentation-based hardening during training.
-
-The in-domain CBVD-5 dataset showed amplified fog sensitivity (high fog −24 pp, 53%
-relative) compared to OOD datasets, suggesting texture cues specific to indoor barn
-imaging are particularly susceptible to contrast reduction.
-
-Full results: `results/generalization/perturbation_delta.csv` (60 rows).
-Detailed analysis: `docs/design/reports/phase9_perturbation_report.md`.
+> See `docs/design/reports/phase9_perturbation_report.md` §5 for full draft.
 
 ### 5.4.3 Evaluation Metrics
 
@@ -225,38 +203,7 @@ Detailed analysis: `docs/design/reports/phase9_perturbation_report.md`.
 
 ### 6.4.2 Pipeline Error Propagation Analysis
 
-Error propagation is traced across four layers of the pipeline:
-
-**Detection layer.** The detector operates at threshold=0.3, deliberately favouring
-recall over precision. On CBVD-5 (test=val, note: no separate test split exists),
-mAP50=45.91% with AR@100=24.28%. On CVB, mAP50=5.67% with AR@100=4.31%, reflecting
-severe domain shift — the detector was checkpoint-selected on CBVD-5 validation only.
-In the canonical tracking evaluation on CVB (447 videos), 15,612 FP detections entered
-the tracker against 8,722 FN, with recall=77.41% and precision=65.69%.
-
-**Tracking layer.** IDF1=67.31% is the primary metric for downstream behavior because it
-measures identity continuity rather than frame-level accuracy. MOTA=36.61% is suppressed
-by the FP count (15,612) and is not the relevant signal for tubelet quality. The
-min_hits=3 ablation sweep (min_hits ∈ {1, 2, 3, 5}) showed IDF1, MOTA, and ID switches
-invariant across all values (IDF1=67.31%, IDS=141 for all four), confirming that the FP
-source is multi-frame persistent detector activations (fence posts, shadows) rather than
-single-frame spurious detections. The min_hits gate cannot reduce these; they are filtered
-at tubelet label assignment (Phase 5) via Hungarian matching with IoU ≥ 0.3.
-
-**Behavior layer.** Cross-domain configs score 3–4× lower than in-domain: CBVD-5→CVB
-macro-F1=0.172 (v2), CVB→CBVD-5=0.225 (v2), vs. CBVD-5 in-domain=0.451 and CVB
-in-domain=0.777. The domain gap originating at the detection stage (5.67% CVB mAP50)
-propagates through tracking fragmentation into behavior window contamination — low-quality
-tubelets from missed or misidentified cattle degrade the VideoMAE input distribution.
-Note: CBVD-5 test=val (no separate test split released); all CBVD-5 figures use the
-validation split as test.
-
-**Perturbation sensitivity layer.** Brightness degradation compounds the domain-shift
-penalty: datasets with larger OOD gap already start at lower clean mAP50, and under
-high-severity brightness perturbation all datasets collapse toward near-zero detection
-(0.99%–4.5%). Fog represents a practical outdoor risk (Freeman: −36 pp at high severity).
-Rain, noise, and blur are operationally benign (< 11 pp at high severity across all
-datasets). Full data: `results/generalization/perturbation_delta.csv`.
+> See `docs/design/reports/phase9_perturbation_report.md` §7 for full draft.
 
 ### 6.4.3 Limitations and Caveats
 
