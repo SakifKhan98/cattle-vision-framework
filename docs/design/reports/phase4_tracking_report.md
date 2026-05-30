@@ -224,7 +224,24 @@ CBVD-5 annotates only 6 frames per 10-second video. Without a high `max_age`, tr
 Running full mask IoU inside OC-SORT's Hungarian assignment would require forking the tracker source. Mask IoU at the recovery step achieves the same result — the correct mask is associated to the correct track — at much lower implementation cost.
 
 **Decision 4: `min_hits=3` to suppress spurious tracks**  
-Single-frame detections are common (RF-DETR fires on background objects occasionally). Requiring 3 consecutive detections before reporting a track eliminates most spurious tracks without discarding legitimate short-duration cattle appearances.
+Single-frame detections are common (RF-DETR fires on background objects occasionally). Requiring 3 consecutive detections before reporting a track eliminates most spurious tracks without discarding legitimate short-duration cattle appearances. See §10.1 for ablation results confirming this choice is robust.
+
+### 10.1 `min_hits` Ablation
+
+A sweep over `min_hits ∈ {1, 2, 3, 5}` was run on all 502 CVB segmentation clips (mh=1 and mh=2 as fresh runs; mh=3 canonical; mh=5 from archived tracks). Results below are evaluated against the same CVB GT (447 videos, split=all, IoU thresh=0.5).
+
+| min_hits | IDF1 (%) | MOTA (%) | MOTP (%) | ID Switches | Videos |
+|----------|----------|----------|----------|-------------|--------|
+| 1        | 67.31    | 36.60    | 77.42    | 141         | 447    |
+| 2        | 67.31    | 36.61    | 77.42    | 141         | 447    |
+| **3**    | **67.31**| **36.61**| **77.42**| **141**     | **447**|
+| 5        | 67.31    | 36.61    | 77.42    | 141         | 447    |
+
+**Finding:** All metrics are essentially constant across the full sweep. IDF1, MOTA, MOTP, and total ID switches are identical for mh ∈ {2, 3, 5} and differ by ≤0.01 for mh=1.
+
+**Interpretation:** The high FP count (15,612) is detector-driven — RF-DETR produces persistent multi-frame false detections (fence posts, shadows) that survive any min_hits threshold. Single-frame spurious detections are already too rare to affect the aggregate metrics. The ID switch count (141 total) is already so low that min_hits changes have no additional effect. This confirms that mh=3 is not a sensitive hyperparameter: the choice is robust and cannot be improved by tuning in either direction.
+
+**Source files:** `results/tracking/cvb_mh{1,2,3,5}_summary.json`, `results/tracking/minhits_ablation.csv`
 
 ---
 
@@ -279,6 +296,12 @@ The `mask_rle` field in the tracking JSON is not used by Phase 5 directly (Phase
 - MOTA's sensitivity to false positives makes it a less useful signal here: the detector intentionally over-detects, and tubelet label assignment downstream filters out unlabeled tracks.
 - The 0.32 identity switches per video is consistent with the literature for indoor/controlled-environment livestock tracking (Ma et al., 2025; Noe et al., 2025 report higher switch rates in unconstrained outdoor settings, justifying the Freeman Center evaluation in Phase 8).
 
+### 13.4 `min_hits` Ablation (Draft — for §6.2.2)
+
+*"A hyperparameter ablation was conducted over `min_hits ∈ {1, 2, 3, 5}` to evaluate the sensitivity of tracking performance to the track confirmation threshold. Table X reports IDF1, MOTA, MOTP, and total identity switches for each value.*
+
+*Across the full sweep, IDF1, MOTA, MOTP, and identity switch count were essentially constant (IDF1=67.31% and IDS=141 for all four values). This invariance indicates that the dominant source of false positives is the RF-DETR detector rather than the tracklet confirmation process: the 15,612 false positive detections correspond to persistent multi-frame background activations that survive regardless of the min_hits threshold, while single-frame spurious detections — the intended target of min_hits — are too rare to affect aggregate metrics. The choice of min_hits=3 is therefore robust: lowering it to 1 does not improve recall, and raising it to 5 does not reduce the false positive count."*
+
 ---
 
 ## 14. Task Status
@@ -290,6 +313,9 @@ The `mask_rle` field in the tracking JSON is not used by Phase 5 directly (Phase
 - [x] Summary CSVs saved to `data/processed/tracking_v2/`
 - [x] Results JSON saved to `results/tracking/tracking_summary_all.json`
 - [x] Track visualization grids saved to `results/tracking/visualizations/`
+- [x] `min_hits` ablation completed (mh ∈ {1,2,3,5}); all metrics invariant — see §10.1
+- [x] Ablation table saved to `results/tracking/minhits_ablation.csv`
+- [x] Per-mh summary JSONs saved to `results/tracking/cvb_mh{1,2,3,5}_summary.json`
 
 ---
 

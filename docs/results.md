@@ -87,15 +87,18 @@ Labels: `data/processed/tubelets/labels.csv`
 Model: VideoMAE-Base fine-tuned on 16-frame tubelet clips. 5 training configurations.
 Primary metric: **macro-F1** (robust to class imbalance).
 
-### Config Summary
+### Config Summary (v1 → v2, RF-DETR tracks)
 
-| Config | Train set | Eval set | **Macro-F1** |
-|--------|-----------|----------|-------------|
-| 1 | CBVD-5 | CBVD-5 (val) | 0.3149 |
-| 2 | CVB | CVB (val) | **0.7607** |
-| 3 | CBVD-5 | CVB (OOD) | 0.1690 |
-| 4 | CVB | CBVD-5 (OOD) | 0.1789 |
-| 5 | CBVD-5 + CVB | both (val) | **0.7537** |
+| Config | Train set | Eval set | **v1 Macro-F1** | **v2 Macro-F1** | Δ |
+|--------|-----------|----------|----------------|----------------|---|
+| 1 | CBVD-5 | CBVD-5 (val) | 0.3149 | **0.4511** | +0.136 |
+| 2 | CVB | CVB (val) | 0.7607 | **0.7770** | +0.016 |
+| 3 | CBVD-5 | CVB (OOD) | 0.1690 | **0.1722** | +0.003 |
+| 4 | CVB | CBVD-5 (OOD) | 0.1789 | **0.2253** | +0.046 |
+| 5 | CBVD-5 + CVB | both (val) | **0.7537** | 0.7507 | −0.003 |
+
+v2 models trained on RF-DETR-tracked tubelets (no SAM2 in tracking loop).
+Full comparison: `results/behavior/v1_v2_comparison.csv`
 
 ### Per-Class F1 — Config 5 (Combined, Best for Analytics)
 
@@ -139,12 +142,12 @@ Primary metric: **macro-F1** (robust to class imbalance).
 **Thesis note:** For Config 1, report 5-class macro-F1 (IDs 0–4 only) to be fair to
 the CBVD-5 dataset, which lacks Grooming and Other annotations.
 
-### OOD (Cross-Domain) Results
+### OOD (Cross-Domain) Results (v2)
 
 | Config | Macro-F1 | Key observation |
 |--------|----------|-----------------|
-| 3: CBVD-5 → CVB | 0.1690 | Large domain gap (indoor barn → outdoor farm) |
-| 4: CVB → CBVD-5 | 0.1789 | Same domain gap in reverse |
+| 3: CBVD-5 → CVB | 0.1722 | Large domain gap (indoor barn → outdoor farm) |
+| 4: CVB → CBVD-5 | 0.2253 | Same domain gap in reverse |
 
 OOD results near chance-level are a key thesis finding: the domain gap between
 indoor surveillance (CBVD-5) and outdoor surveillance (CVB) is severe for behavior recognition.
@@ -156,20 +159,46 @@ Prediction CSVs: `results/behavior/predictions/`
 
 ---
 
-## Phase 7 — Analytics (In Progress)
+## Phase 7 — Analytics
 
-Outputs will be written to `results/analytics/` after Phase 7 implementation (Step I).
+Outputs in `results/analytics/` and `results/inference/freeman/`.
 
 | Output | Description |
 |--------|-------------|
 | `activity_budget.csv` | Per-animal and herd-level time-budget percentages per behavior |
 | `transition_matrix.csv` | Behavior transition probabilities between consecutive states |
-| `welfare_flags.csv` | Alerts for anomalous behavior patterns (e.g., prolonged inactivity) |
 | `timelines/` | Per-video per-track behavior timelines (gitignored, large) |
+
+Freeman Center full pipeline run (14 videos): Foraging dominant, pipeline stable end-to-end.
+Full run analytics: `results/inference/freeman/`
 
 ---
 
 ## Generalization
 
 Cross-domain detection generalization results: `results/generalization/ood_summary.csv`
+
+### OOD Detection (Phase 8)
+
+| Dataset | Type | mAP50 | Notes |
+|---|---|---|---|
+| OpenCows2020 | OOD aerial | 33.26% | High domain shift |
+| Cows2021 | OOD indoor barn | 27.29% | Moderate shift |
+| CattleEyeView | OOD top-down outdoor | 47.00% | Top-down perspective |
+| Freeman Center | OOD angled ranch | 72.98% | Near in-domain performance |
+
+### Perturbation Robustness (Phase 9)
+
+60 conditions: 5 perturbation types × 2 severities × 6 datasets (CVB excluded from analysis — floor effect).
+Full data: `results/generalization/perturbation_delta.csv`
+
+| Perturbation | Damage level | High-severity range (absolute Δ mAP50) |
+|---|---|---|
+| Brightness | Catastrophic | −26 pp to −72 pp (81–99% relative collapse) |
+| Fog | Moderate–severe | −10 pp to −36 pp |
+| Rain | Modest | −3 pp to −11 pp |
+| Gaussian noise | Negligible | < 11 pp (improvements on 2 datasets) |
+| Motion blur | Negligible | < 8 pp (improvements on 2 datasets) |
+
+Detailed findings: `docs/design/reports/phase9_perturbation_report.md`
 Perturbation robustness: `results/generalization/perturbation_delta.csv`

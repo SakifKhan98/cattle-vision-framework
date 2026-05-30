@@ -141,6 +141,8 @@ Dr. Merritt Drewery
 
 ### 5.4.2 Controlled Environmental Perturbations
 
+> See `docs/design/reports/phase9_perturbation_report.md` §5 for full draft.
+
 ### 5.4.3 Evaluation Metrics
 
 #### 5.4.3.1 Detection Metrics
@@ -200,6 +202,8 @@ Dr. Merritt Drewery
 ### 6.4.1 Generalization Across Indoor and Outdoor Environments
 
 ### 6.4.2 Pipeline Error Propagation Analysis
+
+> See `docs/design/reports/phase9_perturbation_report.md` §7 for full draft.
 
 ### 6.4.3 Limitations and Caveats
 

@@ -130,7 +130,9 @@ Columns: `dataset, video_id, tubelet_dir, start_frame, end_frame, label_id, pred
 
 | Stage                                       | Metric                          | v1         | v2 (RF-DETR tracks) |
 | ------------------------------------------- | ------------------------------- | ---------- | ------------------- |
-| Detection                                   | mAP@50 (combined, cross-domain) | 70.4%      | —                   |
+| Detection                                   | mAP@50 (CBVD-5 val, see note)  | 70.4%      | —                   |
+| Detection                                   | mAP@50 CBVD-5 test              | 45.9%      | —                   |
+| Detection                                   | mAP@50 CVB test                 | 5.7%       | —                   |
 | Tracking                                    | IDF1                            | 67.31%     | —                   |
 | Tracking                                    | MOTA                            | 36.61%     | —                   |
 | Behavior Config 1 (CBVD-5 in-domain)        | macro-F1                        | 0.3149     | **0.4511**          |
@@ -142,6 +144,12 @@ Columns: `dataset, video_id, tubelet_dir, start_frame, end_frame, label_id, pred
 v2 models trained on RF-DETR-tracked tubelets (no SAM2 segmentation in tracking loop).
 Full per-class breakdown in `results/behavior/f1_per_class.csv`.
 
+**Note on 70.4% mAP@50:** `data/processed/detection/combined/valid/` contains only CBVD-5
+images (1,612 images; CVB validation images were not merged in). Early stopping and the
+reported 70.4% are therefore CBVD-5-scoped, not a true combined validation. The per-dataset
+test AP numbers (45.9% CBVD-5, 5.7% CVB) are the authoritative per-dataset figures.
+The low CVB test AP reflects that the checkpoint was selected on CBVD-5 validation only.
+
 ## 8. Common Gotchas
 
 - **CBVD-5 test=val**: The dataset has no separate test set; validation split is used as test.
@@ -151,6 +159,7 @@ Full per-class breakdown in `results/behavior/f1_per_class.csv`.
 - **conda not in PATH**: On HiPE1, activate with `source /home/zxs12/miniconda3/etc/profile.d/conda.sh && conda activate cattletransformer`.
 - **OC-SORT path**: `src/tracking/track.py` inserts `third_party/OC_SORT` into `sys.path` at runtime. Must clone before running script 08.
 - **`results/` is committed**: Do not add `results/` to `.gitignore`. Only specific large subdirs are gitignored.
+- **Broken symlinks in `data/processed/detection/`**: Images are symlinks into `data/raw/`. If they point to a `one_day/` prefix (e.g., `/…/one_day/data/raw/cbvd5/…`), they are broken. Fix with `scripts/fix_detection_symlinks.py` or re-run the prepare scripts. This caused 0/N inference in `eval_detection_ood.py` (images silently skipped). As of May 2026 all 22,818 affected symlinks have been corrected.
 
 ## 9. HiPE1 Server
 
@@ -161,7 +170,7 @@ Full per-class breakdown in `results/behavior/f1_per_class.csv`.
 
 ## 10. Current Status
 
-**Phases 0–9 complete.** Repo is live at `github.com/SakifKhan98/cattle-vision-framework`.
+**Phases 0–9 complete + data-perturbations branch.** Repo is live at `github.com/SakifKhan98/cattle-vision-framework`.
 
 | Phase | What | Status |
 |---|---|---|
@@ -176,6 +185,7 @@ Full per-class breakdown in `results/behavior/f1_per_class.csv`.
 | 7 | Behavior analytics (timelines, budgets, deviation) | ✅ complete |
 | 8 | Additional dataset evaluation (generalization) | ✅ complete |
 | 9 | Inference web app + full Freeman Center pipeline run | ✅ complete |
+| 9b | Perturbation robustness eval (60 conditions, 6 datasets) | ✅ complete |
 
 **Phase 8 summary** (see `docs/design/reports/phase8_ood_evaluation_report.md`):
 - OpenCows2020: mAP@50 = 33.3% (aerial top-down, large domain shift)
@@ -184,9 +194,18 @@ Full per-class breakdown in `results/behavior/f1_per_class.csv`.
 - Freeman Center: mAP@50 = 73.0% (angled ranch, parity with in-domain)
 - Freeman Center full pipeline: 14-video behavioral run, Foraging dominant, pipeline stable end-to-end
 
+**Phase 9b summary** (see `docs/design/reports/phase9_perturbation_report.md`):
+- 5 perturbation types × 2 severities × 6 datasets = 60 conditions
+- Brightness: catastrophic (81–99% relative collapse across all datasets)
+- Fog: second-most damaging (7–36 pp at high severity)
+- Noise / blur / rain: robust (< 11 pp at high severity)
+- Results: `results/generalization/perturbation_delta.csv`
+- ⚠️ Re-run with `seg_medium_lr5e5/checkpoint_best_ema.pth` before final thesis submission
+
 **Remaining TODOs:**
 - Upload model weights to HuggingFace (`sakifkhan/cattle-vision-framework`)
 - Upload tracking_v2 data to `sakifkhan/cattle-vision-data`
+- Re-run all OOD baselines + perturbation eval with RF-DETR-Seg checkpoint before final submission
 
 ## 11. Design Documents
 
@@ -202,8 +221,12 @@ All phase reports and planning docs live in `docs/design/`:
 | `reports/phase5_tuebelet_report.md` | Tubelet generation logic + stats |
 | `reports/phase6_behavior_classify_report.md` | VideoMAE training + all 5 config results |
 | `reports/phase7_analytics_report.md` | Analytics implementation + thesis sections |
+| `reports/phase8_ood_evaluation_report.md` | OOD detection + segmentation across 4 external datasets |
+| `reports/phase9_perturbation_report.md` | Perturbation robustness eval — 60 conditions, §5.4.2 + §6.4.2 thesis drafts |
+| `reports/thesis_data_completion_report.md` | Consolidated metrics for all thesis sections |
 | `phase7_cleanup_prd.md` | Phase 7 cleanup checklist (Steps A–I, all complete) |
 | `phase8_additional_datasets_prd.md` | Phase 8 plan: additional dataset evaluation |
+| `perturbation_eval_prd.md` | Perturbation eval spec (issues #25, #26) |
 
 ## Agent skills
 

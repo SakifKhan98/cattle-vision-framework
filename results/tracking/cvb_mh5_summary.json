@@ -1,6 +1,4 @@
 {
-  "dataset": "cvb",
-  "n_videos": 447,
   "config": {
     "split": "all",
     "iou_thresh": 0.5
@@ -19,6 +17,5 @@
     "Precision": 65.69,
     "Recall": 77.41,
     "Avg_IDS_per_video": 0.32
-  },
-  "note": "All videos in tracking_per_video_all.csv belong to the CVB dataset. tracking_summary_all.json is therefore a CVB-only aggregate."
+  }
 }

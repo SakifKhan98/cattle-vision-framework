@@ -1,0 +1,5 @@
+{
+  "dataset": "cbvd5",
+  "computable": false,
+  "note": "CBVD-5 annotations do not provide persistent track IDs across frames. Standard MOT metrics (IDF1, MOTA) require ground-truth trajectory IDs to match predicted tracks over time. Because CBVD-5 annotates per-frame bounding boxes without cross-frame identity, MOT evaluation is not applicable. OC-SORT was run on CBVD-5 solely to generate tubelets for VideoMAE training; tracking quality on CBVD-5 cannot be quantified."
+}

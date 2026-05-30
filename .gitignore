@@ -27,6 +27,7 @@ third_party/
 
 # Large result artifacts (keep summaries, not raw outputs)
 # NOTE: results/behavior/predictions/ is COMMITTED (17 MB, needed for analytics)
+results/generalization/perturbation_runs/
 results/analytics/timelines/
 results/tracking/videos/
 results/tracking/visualizations/

@@ -1,6 +1,4 @@
 {
-  "dataset": "cvb",
-  "n_videos": 447,
   "config": {
     "split": "all",
     "iou_thresh": 0.5
@@ -8,17 +6,16 @@
   "results": {
     "videos_evaluated": 447,
     "total_gt": 38609,
-    "total_pred": 45499,
+    "total_pred": 45501,
     "total_tp": 29887,
-    "total_fp": 15612,
+    "total_fp": 15614,
     "total_fn": 8722,
     "total_id_switches": 141,
-    "MOTA": 36.61,
+    "MOTA": 36.6,
     "MOTP": 77.42,
     "IDF1": 67.31,
-    "Precision": 65.69,
+    "Precision": 65.68,
     "Recall": 77.41,
     "Avg_IDS_per_video": 0.32
-  },
-  "note": "All videos in tracking_per_video_all.csv belong to the CVB dataset. tracking_summary_all.json is therefore a CVB-only aggregate."
+  }
 }
