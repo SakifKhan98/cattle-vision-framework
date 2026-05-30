@@ -170,7 +170,7 @@ The low CVB test AP reflects that the checkpoint was selected on CBVD-5 validati
 
 ## 10. Current Status
 
-**Phases 0–9 complete.** Repo is live at `github.com/SakifKhan98/cattle-vision-framework`.
+**Phases 0–9 complete + data-perturbations branch.** Repo is live at `github.com/SakifKhan98/cattle-vision-framework`.
 
 | Phase | What | Status |
 |---|---|---|
@@ -185,6 +185,7 @@ The low CVB test AP reflects that the checkpoint was selected on CBVD-5 validati
 | 7 | Behavior analytics (timelines, budgets, deviation) | ✅ complete |
 | 8 | Additional dataset evaluation (generalization) | ✅ complete |
 | 9 | Inference web app + full Freeman Center pipeline run | ✅ complete |
+| 9b | Perturbation robustness eval (60 conditions, 6 datasets) | ✅ complete |
 
 **Phase 8 summary** (see `docs/design/reports/phase8_ood_evaluation_report.md`):
 - OpenCows2020: mAP@50 = 33.3% (aerial top-down, large domain shift)
@@ -193,9 +194,18 @@ The low CVB test AP reflects that the checkpoint was selected on CBVD-5 validati
 - Freeman Center: mAP@50 = 73.0% (angled ranch, parity with in-domain)
 - Freeman Center full pipeline: 14-video behavioral run, Foraging dominant, pipeline stable end-to-end
 
+**Phase 9b summary** (see `docs/design/reports/phase9_perturbation_report.md`):
+- 5 perturbation types × 2 severities × 6 datasets = 60 conditions
+- Brightness: catastrophic (81–99% relative collapse across all datasets)
+- Fog: second-most damaging (7–36 pp at high severity)
+- Noise / blur / rain: robust (< 11 pp at high severity)
+- Results: `results/generalization/perturbation_delta.csv`
+- ⚠️ Re-run with `seg_medium_lr5e5/checkpoint_best_ema.pth` before final thesis submission
+
 **Remaining TODOs:**
 - Upload model weights to HuggingFace (`sakifkhan/cattle-vision-framework`)
 - Upload tracking_v2 data to `sakifkhan/cattle-vision-data`
+- Re-run all OOD baselines + perturbation eval with RF-DETR-Seg checkpoint before final submission
 
 ## 11. Design Documents
 
@@ -211,8 +221,12 @@ All phase reports and planning docs live in `docs/design/`:
 | `reports/phase5_tuebelet_report.md` | Tubelet generation logic + stats |
 | `reports/phase6_behavior_classify_report.md` | VideoMAE training + all 5 config results |
 | `reports/phase7_analytics_report.md` | Analytics implementation + thesis sections |
+| `reports/phase8_ood_evaluation_report.md` | OOD detection + segmentation across 4 external datasets |
+| `reports/phase9_perturbation_report.md` | Perturbation robustness eval — 60 conditions, §5.4.2 + §6.4.2 thesis drafts |
+| `reports/thesis_data_completion_report.md` | Consolidated metrics for all thesis sections |
 | `phase7_cleanup_prd.md` | Phase 7 cleanup checklist (Steps A–I, all complete) |
 | `phase8_additional_datasets_prd.md` | Phase 8 plan: additional dataset evaluation |
+| `perturbation_eval_prd.md` | Perturbation eval spec (issues #25, #26) |
 
 ## Agent skills
 
